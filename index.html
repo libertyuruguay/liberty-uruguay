@@ -13,6 +13,7 @@ font-family:'Inter',sans-serif;
 background:#eef2f7;
 }
 
+/* HEADER */
 .header{
 background:#0b3a6f;
 padding:20px;
@@ -21,6 +22,7 @@ font-size:22px;
 font-weight:600;
 }
 
+/* BUSCADOR */
 .search-box{
 background:white;
 margin:-30px auto 20px;
@@ -31,6 +33,7 @@ border-radius:14px;
 box-shadow:0 10px 25px rgba(0,0,0,0.1);
 display:flex;
 gap:10px;
+flex-wrap:wrap;
 }
 
 .search-box input{
@@ -49,6 +52,23 @@ border-radius:8px;
 cursor:pointer;
 }
 
+/* CONTROLES */
+.controls{
+width:90%;
+max-width:1100px;
+margin:0 auto;
+display:flex;
+justify-content:flex-end;
+padding:10px;
+}
+
+.controls select{
+padding:8px;
+border-radius:6px;
+border:1px solid #ccc;
+}
+
+/* RESULTADOS */
 .results{
 padding:20px;
 display:flex;
@@ -56,25 +76,33 @@ flex-direction:column;
 gap:15px;
 }
 
+/* CARD */
 .card{
 background:white;
 border-radius:14px;
-padding:20px;
-box-shadow:0 5px 20px rgba(0,0,0,0.06);
+padding:18px;
+box-shadow:0 8px 25px rgba(0,0,0,0.08);
+display:flex;
+justify-content:space-between;
+align-items:center;
+gap:20px;
 transition:0.3s;
 }
 
 .card:hover{
-transform:scale(1.01);
+transform:translateY(-3px);
+box-shadow:0 12px 30px rgba(0,0,0,0.12);
 }
 
-/* filas vuelo */
-.flight{
+.left{
+flex:1;
+}
+
+.flight-row{
 display:flex;
-justify-content:space-between;
 align-items:center;
-border-bottom:1px solid #eee;
-padding:10px 0;
+justify-content:space-between;
+margin-bottom:12px;
 }
 
 .route{
@@ -84,47 +112,105 @@ font-size:16px;
 
 .time{
 font-size:14px;
-color:#555;
+color:#666;
 }
 
 .airline{
-font-size:13px;
-color:#777;
+font-size:12px;
+color:#999;
+display:flex;
+align-items:center;
+gap:6px;
 }
 
-/* precio */
-.price-box{
-display:flex;
-justify-content:space-between;
-align-items:center;
-margin-top:15px;
+.airline img{
+height:16px;
+}
+
+.line{
+flex:1;
+height:1px;
+background:#ddd;
+margin:0 10px;
+position:relative;
+}
+
+.line::after{
+content:"✈";
+position:absolute;
+top:-8px;
+left:50%;
+transform:translateX(-50%);
+font-size:14px;
+color:#0b3a6f;
+}
+
+/* DERECHA */
+.right{
+text-align:right;
+min-width:160px;
 }
 
 .price{
-font-size:26px;
+font-size:28px;
 font-weight:700;
 color:#0b3a6f;
 }
 
-.badges span{
-background:#eee;
-padding:6px 10px;
-border-radius:6px;
-font-size:12px;
-margin-right:5px;
+.badges{
+margin-top:6px;
 }
 
-/* colores cupos */
-.low{background:#ff4d4d !important; color:white;}
-.medium{background:#ffa500 !important; color:white;}
-.high{background:#28a745 !important; color:white;}
+.badges span{
+font-size:11px;
+padding:5px 8px;
+border-radius:6px;
+margin-left:5px;
+}
+
+.low{background:#ff4d4d;color:white;}
+.medium{background:#ffa500;color:white;}
+.high{background:#28a745;color:white;}
+
+.urgency{
+background:#ff4d4d;
+color:white;
+font-size:11px;
+padding:4px 8px;
+border-radius:6px;
+display:inline-block;
+margin-top:5px;
+animation:pulse 1s infinite;
+}
+
+@keyframes pulse{
+0%{opacity:1;}
+50%{opacity:0.6;}
+100%{opacity:1;}
+}
 
 .btn{
+margin-top:10px;
+display:inline-block;
 background:#0b3a6f;
 color:white;
-padding:10px 15px;
+padding:9px 14px;
 border-radius:8px;
 text-decoration:none;
+font-size:13px;
+}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+.card{
+flex-direction:column;
+align-items:flex-start;
+}
+
+.right{
+width:100%;
+text-align:left;
+}
 }
 </style>
 </head>
@@ -139,6 +225,13 @@ text-decoration:none;
 <button onclick="buscar()">Buscar</button>
 </div>
 
+<div class="controls">
+<select onchange="ordenar(this.value)">
+<option value="">Ordenar</option>
+<option value="precio">Precio menor</option>
+</select>
+</div>
+
 <div class="results" id="resultados"></div>
 
 <script>
@@ -150,31 +243,26 @@ let data = [];
 fetch(url)
 .then(res => res.text())
 .then(text => {
-
 let rows = text.split("\n").slice(1);
 data = rows.map(r => r.split(","));
 mostrar(data);
-
 });
 
-function getLogo(airline){
-airline = airline.toLowerCase();
-
-if(airline.includes("latam")) return "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/LATAM_logo.svg/320px-LATAM_logo.svg.png";
-if(airline.includes("gol")) return "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2b/GOL_Logo.svg/320px-GOL_Logo.svg.png";
-
+function getLogo(name){
+name = name.toLowerCase();
+if(name.includes("latam")) return "https://upload.wikimedia.org/wikipedia/commons/1/1b/LATAM_logo.svg";
+if(name.includes("gol")) return "https://upload.wikimedia.org/wikipedia/commons/2/2b/GOL_Logo.svg";
 return "";
 }
 
-function cupoColor(cupos){
-cupos = parseInt(cupos);
-if(cupos <= 3) return "low";
-if(cupos <= 7) return "medium";
+function cupoColor(c){
+c = parseInt(c);
+if(c <= 3) return "low";
+if(c <= 7) return "medium";
 return "high";
 }
 
 function buscar(){
-
 let o = document.getElementById("origen").value.toLowerCase();
 let d = document.getElementById("destino").value.toLowerCase();
 
@@ -184,7 +272,13 @@ r[2].toLowerCase().includes(d)
 );
 
 mostrar(filtrados);
+}
 
+function ordenar(tipo){
+if(tipo === "precio"){
+data.sort((a,b)=>parseFloat(a[14]) - parseFloat(b[14]));
+}
+mostrar(data);
 }
 
 function mostrar(datos){
@@ -193,8 +287,11 @@ let html = "";
 
 datos.forEach(r => {
 
-let logo = getLogo(r[3]);
-let color = cupoColor(r[13]);
+let cupos = parseInt(r[13]);
+let urgencia = cupos <= 3 ? `<div class="urgency">Últimos cupos</div>` : "";
+
+let logoIda = getLogo(r[3]);
+let logoVuelta = getLogo(r[9]);
 
 let wa = `https://wa.me/59800000000?text=${encodeURIComponent(
 `Consulta ${r[1]}-${r[2]} ${r[4]}`
@@ -203,31 +300,44 @@ let wa = `https://wa.me/59800000000?text=${encodeURIComponent(
 html += `
 <div class="card">
 
-<div class="flight">
+<div class="left">
+
+<div class="flight-row">
 <div>
-<div class="route">${r[1]} → ${r[0]} → ${r[2]}</div>
+<div class="route">${r[1]} → ${r[2]}</div>
 <div class="time">${r[5]} - ${r[6]}</div>
-<div class="airline">${r[3]}</div>
+<div class="airline">
+${logoIda ? `<img src="${logoIda}">` : ""} ${r[3]}
 </div>
-<img src="${logo}" height="25">
+</div>
+<div class="line"></div>
+<div>${r[0]}</div>
 </div>
 
-<div class="flight">
+<div class="flight-row">
 <div>
-<div class="route">${r[2]} → ${r[0]} → ${r[1]}</div>
+<div class="route">${r[2]} → ${r[1]}</div>
 <div class="time">${r[11]} - ${r[12]}</div>
-<div class="airline">${r[9]}</div>
+<div class="airline">
+${logoVuelta ? `<img src="${logoVuelta}">` : ""} ${r[9]}
 </div>
+</div>
+<div class="line"></div>
+<div>${r[0]}</div>
 </div>
 
-<div class="price-box">
-<div>
+</div>
+
+<div class="right">
 <div class="price">USD ${r[14]}</div>
+
 <div class="badges">
-<span class="${color}">Cupos: ${r[13]}</span>
-<span>Equipaje: ${r[15]}</span>
+<span class="${cupoColor(r[13])}">${r[13]} cupos</span>
+<span>${r[15]}</span>
 </div>
-</div>
+
+${urgencia}
+
 <a class="btn" href="${wa}" target="_blank">Consultar</a>
 </div>
 
