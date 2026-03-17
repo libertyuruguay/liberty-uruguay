@@ -2,98 +2,128 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Promociones Liberty</title>
+<title>Liberty Cupos Aéreos</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 
 <style>
 body{
 margin:0;
-font-family:'Poppins',sans-serif;
-background:#f3f5f9;
+font-family:'Inter',sans-serif;
+background:#eef2f7;
 }
 
-header{
-background:white;
-padding:20px 40px;
-display:flex;
-justify-content:space-between;
-align-items:center;
-box-shadow:0 2px 10px rgba(0,0,0,0.05);
-}
-
-h1{color:#0b3a6f;}
-
-.hero{
-height:250px;
-background:url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e') center/cover;
-display:flex;
-align-items:center;
-justify-content:center;
+.header{
+background:#0b3a6f;
+padding:20px;
 color:white;
-font-size:35px;
+font-size:22px;
 font-weight:600;
 }
 
-.filtros{
-text-align:center;
-margin:20px;
+.search-box{
+background:white;
+margin:-30px auto 20px;
+width:90%;
+max-width:1100px;
+padding:20px;
+border-radius:14px;
+box-shadow:0 10px 25px rgba(0,0,0,0.1);
+display:flex;
+gap:10px;
 }
 
-.filtros button{
-margin:5px;
-padding:10px 15px;
+.search-box input{
+flex:1;
+padding:12px;
+border-radius:8px;
+border:1px solid #ddd;
+}
+
+.search-box button{
+padding:12px 20px;
+background:#0b3a6f;
+color:white;
 border:none;
 border-radius:8px;
 cursor:pointer;
-background:#0b3a6f;
-color:white;
 }
 
-.container{
-padding:30px;
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
-gap:25px;
+.results{
+padding:20px;
+display:flex;
+flex-direction:column;
+gap:15px;
 }
 
 .card{
-position:relative;
-border-radius:18px;
-overflow:hidden;
-}
-
-.card img{
-width:100%;
-height:420px;
-object-fit:cover;
-}
-
-.overlay{
-position:absolute;
-top:0;
-left:0;
-width:100%;
-height:100%;
-background:linear-gradient(to top, rgba(0,0,0,0.8), transparent);
-display:flex;
-flex-direction:column;
-justify-content:flex-end;
+background:white;
+border-radius:14px;
 padding:20px;
-color:white;
+box-shadow:0 5px 20px rgba(0,0,0,0.06);
+transition:0.3s;
 }
 
-.destino{font-size:24px;font-weight:600;}
-.detalle{font-size:14px;}
-.price{font-size:24px;font-weight:700;}
+.card:hover{
+transform:scale(1.01);
+}
+
+/* filas vuelo */
+.flight{
+display:flex;
+justify-content:space-between;
+align-items:center;
+border-bottom:1px solid #eee;
+padding:10px 0;
+}
+
+.route{
+font-weight:600;
+font-size:16px;
+}
+
+.time{
+font-size:14px;
+color:#555;
+}
+
+.airline{
+font-size:13px;
+color:#777;
+}
+
+/* precio */
+.price-box{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-top:15px;
+}
+
+.price{
+font-size:26px;
+font-weight:700;
+color:#0b3a6f;
+}
+
+.badges span{
+background:#eee;
+padding:6px 10px;
+border-radius:6px;
+font-size:12px;
+margin-right:5px;
+}
+
+/* colores cupos */
+.low{background:#ff4d4d !important; color:white;}
+.medium{background:#ffa500 !important; color:white;}
+.high{background:#28a745 !important; color:white;}
 
 .btn{
-margin-top:10px;
 background:#0b3a6f;
-padding:10px;
-text-align:center;
-border-radius:8px;
 color:white;
+padding:10px 15px;
+border-radius:8px;
 text-decoration:none;
 }
 </style>
@@ -101,77 +131,112 @@ text-decoration:none;
 
 <body>
 
-<header>
-<h1>LIBERTY PROMOS</h1>
-</header>
+<div class="header">✈️ Liberty Cupos Aéreos</div>
 
-<div class="hero">Promociones Exclusivas</div>
+<div class="search-box">
+<input id="origen" placeholder="Origen">
+<input id="destino" placeholder="Destino">
+<button onclick="buscar()">Buscar</button>
+</div>
 
-<div class="filtros" id="filtros"></div>
-
-<div class="container" id="contenedor"></div>
+<div class="results" id="resultados"></div>
 
 <script>
 
-// 🔥 PEGÁ ACA TU CSV
-const sheetURL = "PEGAR_LINK_CSV_AQUI";
+const url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS1RniGt74piEAVb7oVGRQ5NQ-cH_8_gY5V0ZTKWIegH0Osb1SQ_la4lW5nT3E7g2wnjjcHYGSYuQnt/pub?output=csv";
 
-fetch(sheetURL)
+let data = [];
+
+fetch(url)
 .then(res => res.text())
-.then(data => {
+.then(text => {
 
-let filas = data.split("\n").slice(1);
-let categorias = new Set();
+let rows = text.split("\n").slice(1);
+data = rows.map(r => r.split(","));
+mostrar(data);
 
-filas.forEach(f => {
-let col = f.split(",");
-if(col[7] === "SI"){
-categorias.add(col[6]);
+});
+
+function getLogo(airline){
+airline = airline.toLowerCase();
+
+if(airline.includes("latam")) return "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/LATAM_logo.svg/320px-LATAM_logo.svg.png";
+if(airline.includes("gol")) return "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2b/GOL_Logo.svg/320px-GOL_Logo.svg.png";
+
+return "";
 }
-});
 
-// crear botones filtro
-let filtroHTML = '<button onclick="filtrar(\'ALL\')">Todos</button>';
-categorias.forEach(c => {
-filtroHTML += `<button onclick="filtrar('${c}')">${c}</button>`;
-});
-document.getElementById("filtros").innerHTML = filtroHTML;
+function cupoColor(cupos){
+cupos = parseInt(cupos);
+if(cupos <= 3) return "low";
+if(cupos <= 7) return "medium";
+return "high";
+}
 
-// guardar datos global
-window.promos = filas.map(f => f.split(","));
+function buscar(){
 
-// mostrar todo
-filtrar("ALL");
+let o = document.getElementById("origen").value.toLowerCase();
+let d = document.getElementById("destino").value.toLowerCase();
 
-});
+let filtrados = data.filter(r =>
+r[1].toLowerCase().includes(o) &&
+r[2].toLowerCase().includes(d)
+);
 
-function filtrar(cat){
+mostrar(filtrados);
+
+}
+
+function mostrar(datos){
 
 let html = "";
 
-window.promos.forEach(col => {
+datos.forEach(r => {
 
-if(col[7] !== "SI") return;
+let logo = getLogo(r[3]);
+let color = cupoColor(r[13]);
 
-if(cat !== "ALL" && col[6] !== cat) return;
-
-let wa = `https://wa.me/${col[4]}?text=${encodeURIComponent(col[5])}`;
+let wa = `https://wa.me/59800000000?text=${encodeURIComponent(
+`Consulta ${r[1]}-${r[2]} ${r[4]}`
+)}`;
 
 html += `
 <div class="card">
-<img src="${col[3]}">
-<div class="overlay">
-<div class="destino">${col[0]}</div>
-<div class="detalle">${col[1]}</div>
-<div class="price">USD ${col[2]}</div>
+
+<div class="flight">
+<div>
+<div class="route">${r[1]} → ${r[0]} → ${r[2]}</div>
+<div class="time">${r[5]} - ${r[6]}</div>
+<div class="airline">${r[3]}</div>
+</div>
+<img src="${logo}" height="25">
+</div>
+
+<div class="flight">
+<div>
+<div class="route">${r[2]} → ${r[0]} → ${r[1]}</div>
+<div class="time">${r[11]} - ${r[12]}</div>
+<div class="airline">${r[9]}</div>
+</div>
+</div>
+
+<div class="price-box">
+<div>
+<div class="price">USD ${r[14]}</div>
+<div class="badges">
+<span class="${color}">Cupos: ${r[13]}</span>
+<span>Equipaje: ${r[15]}</span>
+</div>
+</div>
 <a class="btn" href="${wa}" target="_blank">Consultar</a>
 </div>
+
 </div>
 `;
 
 });
 
-document.getElementById("contenedor").innerHTML = html;
+document.getElementById("resultados").innerHTML = html;
 
 }
 
