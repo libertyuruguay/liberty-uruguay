@@ -2,114 +2,180 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Promos Liberty</title>
+<title>Promociones Liberty</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 
 <style>
 body{
-font-family:'Inter',sans-serif;
 margin:0;
-background:#f5f7fb;
+font-family:'Poppins',sans-serif;
+background:#f3f5f9;
 }
 
 header{
+background:white;
+padding:20px 40px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+box-shadow:0 2px 10px rgba(0,0,0,0.05);
+}
+
+h1{color:#0b3a6f;}
+
+.hero{
+height:250px;
+background:url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e') center/cover;
+display:flex;
+align-items:center;
+justify-content:center;
+color:white;
+font-size:35px;
+font-weight:600;
+}
+
+.filtros{
+text-align:center;
+margin:20px;
+}
+
+.filtros button{
+margin:5px;
+padding:10px 15px;
+border:none;
+border-radius:8px;
+cursor:pointer;
 background:#0b3a6f;
 color:white;
-padding:20px;
-text-align:center;
-font-size:22px;
-font-weight:600;
 }
 
 .container{
 padding:30px;
 display:grid;
-grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
-gap:20px;
+grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+gap:25px;
 }
 
 .card{
-background:white;
-border-radius:14px;
+position:relative;
+border-radius:18px;
 overflow:hidden;
-box-shadow:0 10px 25px rgba(0,0,0,0.08);
-transition:0.3s;
-}
-
-.card:hover{
-transform:translateY(-5px);
 }
 
 .card img{
 width:100%;
-height:180px;
+height:420px;
 object-fit:cover;
 }
 
-.content{
-padding:15px;
+.overlay{
+position:absolute;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+display:flex;
+flex-direction:column;
+justify-content:flex-end;
+padding:20px;
+color:white;
 }
 
-.title{
-font-size:18px;
-font-weight:600;
-margin-bottom:8px;
-}
-
-.info{
-font-size:14px;
-color:#555;
-margin-bottom:10px;
-}
-
-.price{
-font-size:20px;
-font-weight:700;
-color:#0b3a6f;
-margin-bottom:12px;
-}
+.destino{font-size:24px;font-weight:600;}
+.detalle{font-size:14px;}
+.price{font-size:24px;font-weight:700;}
 
 .btn{
-display:block;
-text-align:center;
+margin-top:10px;
 background:#0b3a6f;
-color:white;
 padding:10px;
+text-align:center;
 border-radius:8px;
+color:white;
 text-decoration:none;
-font-weight:500;
 }
 </style>
 </head>
 
 <body>
 
-<header>🔥 Promociones Liberty 2026</header>
+<header>
+<h1>LIBERTY PROMOS</h1>
+</header>
 
-<div class="container">
+<div class="hero">Promociones Exclusivas</div>
 
+<div class="filtros" id="filtros"></div>
+
+<div class="container" id="contenedor"></div>
+
+<script>
+
+// 🔥 PEGÁ ACA TU CSV
+const sheetURL = "PEGAR_LINK_CSV_AQUI";
+
+fetch(sheetURL)
+.then(res => res.text())
+.then(data => {
+
+let filas = data.split("\n").slice(1);
+let categorias = new Set();
+
+filas.forEach(f => {
+let col = f.split(",");
+if(col[7] === "SI"){
+categorias.add(col[6]);
+}
+});
+
+// crear botones filtro
+let filtroHTML = '<button onclick="filtrar(\'ALL\')">Todos</button>';
+categorias.forEach(c => {
+filtroHTML += `<button onclick="filtrar('${c}')">${c}</button>`;
+});
+document.getElementById("filtros").innerHTML = filtroHTML;
+
+// guardar datos global
+window.promos = filas.map(f => f.split(","));
+
+// mostrar todo
+filtrar("ALL");
+
+});
+
+function filtrar(cat){
+
+let html = "";
+
+window.promos.forEach(col => {
+
+if(col[7] !== "SI") return;
+
+if(cat !== "ALL" && col[6] !== cat) return;
+
+let wa = `https://wa.me/${col[4]}?text=${encodeURIComponent(col[5])}`;
+
+html += `
 <div class="card">
-<img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e">
-<div class="content">
-<div class="title">Punta Cana</div>
-<div class="info">7 noches + vuelos + transfers</div>
-<div class="price">USD 1.318</div>
-<a class="btn" href="mailto:ventas@liberty.com?subject=Punta Cana Promo">Consultar</a>
+<img src="${col[3]}">
+<div class="overlay">
+<div class="destino">${col[0]}</div>
+<div class="detalle">${col[1]}</div>
+<div class="price">USD ${col[2]}</div>
+<a class="btn" href="${wa}" target="_blank">Consultar</a>
 </div>
 </div>
+`;
 
-<div class="card">
-<img src="https://images.unsplash.com/photo-1501785888041-af3ef285b470">
-<div class="content">
-<div class="title">Buzios</div>
-<div class="info">7 noches + desayuno</div>
-<div class="price">USD 640</div>
-<a class="btn" href="#">Consultar</a>
-</div>
-</div>
+});
 
-</div>
+document.getElementById("contenedor").innerHTML = html;
+
+}
+
+</script>
 
 </body>
 </html>
