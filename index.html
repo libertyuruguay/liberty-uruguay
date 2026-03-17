@@ -2,237 +2,130 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Liberty Cupos Aéreos</title>
+<title>Promos Aéreas Liberty</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 
 <style>
+
 body{
-margin:0;
 font-family:'Inter',sans-serif;
-background:#eef2f7;
-}
-
-/* HEADER */
-.header{
-background:#0b3a6f;
+background:#f4f6fb;
+margin:0;
 padding:20px;
-color:white;
-font-size:22px;
-font-weight:600;
 }
 
-/* BUSCADOR */
+/* buscador */
 .search-box{
-background:white;
-margin:-30px auto 20px;
-width:90%;
-max-width:1100px;
-padding:20px;
-border-radius:14px;
-box-shadow:0 10px 25px rgba(0,0,0,0.1);
-display:flex;
-gap:10px;
-flex-wrap:wrap;
+max-width:900px;
+margin:0 auto 20px;
 }
 
-.search-box input{
-flex:1;
-padding:12px;
+input{
+width:100%;
+padding:10px;
 border-radius:8px;
 border:1px solid #ddd;
+font-size:14px;
 }
 
-.search-box button{
-padding:12px 20px;
-background:#0b3a6f;
-color:white;
-border:none;
-border-radius:8px;
-cursor:pointer;
-}
-
-/* CONTROLES */
-.controls{
-width:90%;
-max-width:1100px;
-margin:0 auto;
-display:flex;
-justify-content:flex-end;
-padding:10px;
-}
-
-.controls select{
-padding:8px;
-border-radius:6px;
-border:1px solid #ccc;
-}
-
-/* RESULTADOS */
-.results{
-padding:20px;
-display:flex;
-flex-direction:column;
-gap:15px;
-}
-
-/* CARD */
-.card{
+/* tabla ultra compacta */
+.row{
+display:grid;
+grid-template-columns: 1.2fr 1fr 1fr 1fr 1fr 0.8fr 1fr 0.6fr;
+gap:8px;
+align-items:center;
 background:white;
-border-radius:14px;
-padding:18px;
-box-shadow:0 8px 25px rgba(0,0,0,0.08);
-display:flex;
-justify-content:space-between;
-align-items:center;
-gap:20px;
-transition:0.3s;
-}
-
-.card:hover{
-transform:translateY(-3px);
-box-shadow:0 12px 30px rgba(0,0,0,0.12);
-}
-
-.left{
-flex:1;
-}
-
-.flight-row{
-display:flex;
-align-items:center;
-justify-content:space-between;
-margin-bottom:12px;
-}
-
-.route{
-font-weight:600;
-font-size:16px;
-}
-
-.time{
-font-size:14px;
-color:#666;
-}
-
-.airline{
+padding:8px 10px;
+border-radius:8px;
+margin-bottom:6px;
 font-size:12px;
-color:#999;
-display:flex;
-align-items:center;
-gap:6px;
+box-shadow:0 2px 6px rgba(0,0,0,0.05);
+transition:0.2s;
 }
 
-.airline img{
-height:16px;
+.row:hover{
+background:#f7f9fc;
 }
 
-.line{
-flex:1;
-height:1px;
-background:#ddd;
-margin:0 10px;
-position:relative;
+.col{
+white-space:nowrap;
+overflow:hidden;
+text-overflow:ellipsis;
 }
 
-.line::after{
-content:"✈";
-position:absolute;
-top:-8px;
-left:50%;
-transform:translateX(-50%);
-font-size:14px;
-color:#0b3a6f;
-}
-
-/* DERECHA */
-.right{
-text-align:right;
-min-width:160px;
-}
+.route{font-weight:600;}
 
 .price{
-font-size:28px;
+font-size:16px;
 font-weight:700;
 color:#0b3a6f;
 }
 
-.badges{
-margin-top:6px;
-}
-
-.badges span{
-font-size:11px;
-padding:5px 8px;
-border-radius:6px;
-margin-left:5px;
-}
-
-.low{background:#ff4d4d;color:white;}
-.medium{background:#ffa500;color:white;}
-.high{background:#28a745;color:white;}
+/* cupos */
+.low{color:#ff4d4d;font-weight:600;}
+.medium{color:#ffa500;}
+.high{color:#28a745;}
 
 .urgency{
 background:#ff4d4d;
 color:white;
-font-size:11px;
-padding:4px 8px;
-border-radius:6px;
-display:inline-block;
-margin-top:5px;
-animation:pulse 1s infinite;
+font-size:9px;
+padding:2px 4px;
+border-radius:4px;
+margin-left:4px;
 }
 
-@keyframes pulse{
-0%{opacity:1;}
-50%{opacity:0.6;}
-100%{opacity:1;}
-}
-
+/* botón */
 .btn{
-margin-top:10px;
-display:inline-block;
 background:#0b3a6f;
 color:white;
-padding:9px 14px;
-border-radius:8px;
+padding:4px 6px;
+border-radius:5px;
+font-size:11px;
 text-decoration:none;
-font-size:13px;
 }
 
-/* RESPONSIVE */
+/* encabezado */
+.header{
+display:grid;
+grid-template-columns: 1.2fr 1fr 1fr 1fr 1fr 0.8fr 1fr 0.6fr;
+gap:8px;
+font-size:11px;
+color:#777;
+margin-bottom:8px;
+padding:0 10px;
+}
+
+/* responsive */
 @media(max-width:768px){
-.card{
-flex-direction:column;
-align-items:flex-start;
+.row,.header{
+grid-template-columns: 1fr 1fr 1fr;
+font-size:11px;
+}
 }
 
-.right{
-width:100%;
-text-align:left;
-}
-}
 </style>
 </head>
 
 <body>
 
-<div class="header">✈️ Liberty Cupos Aéreos</div>
-
 <div class="search-box">
-<input id="origen" placeholder="Origen">
-<input id="destino" placeholder="Destino">
-<button onclick="buscar()">Buscar</button>
+<input type="text" id="buscador" placeholder="Buscar destino, origen o compañía...">
 </div>
 
-<div class="controls">
-<select onchange="ordenar(this.value)">
-<option value="">Ordenar</option>
-<option value="precio">Precio menor</option>
-</select>
+<div class="header">
+<div>Ruta</div>
+<div>Ida</div>
+<div>Aerolínea</div>
+<div>Vuelta</div>
+<div>Equipaje</div>
+<div>Cupos</div>
+<div>Precio</div>
+<div></div>
 </div>
 
-<div class="results" id="resultados"></div>
+<div id="resultados"></div>
 
 <script>
 
@@ -242,19 +135,22 @@ let data = [];
 
 fetch(url)
 .then(res => res.text())
-.then(text => {
-let rows = text.split("\n").slice(1);
-data = rows.map(r => r.split(","));
+.then(csv => {
+let rows = csv.split("\n").map(r => r.split(","));
+data = rows.slice(1);
 mostrar(data);
 });
 
-function getLogo(name){
-name = name.toLowerCase();
-if(name.includes("latam")) return "https://upload.wikimedia.org/wikipedia/commons/1/1b/LATAM_logo.svg";
-if(name.includes("gol")) return "https://upload.wikimedia.org/wikipedia/commons/2/2b/GOL_Logo.svg";
-return "";
-}
+/* buscador */
+document.getElementById("buscador").addEventListener("input", e => {
+let val = e.target.value.toLowerCase();
+let filtrado = data.filter(r =>
+r.join(" ").toLowerCase().includes(val)
+);
+mostrar(filtrado);
+});
 
+/* color cupos */
 function cupoColor(c){
 c = parseInt(c);
 if(c <= 3) return "low";
@@ -262,83 +158,56 @@ if(c <= 7) return "medium";
 return "high";
 }
 
-function buscar(){
-let o = document.getElementById("origen").value.toLowerCase();
-let d = document.getElementById("destino").value.toLowerCase();
-
-let filtrados = data.filter(r =>
-r[1].toLowerCase().includes(o) &&
-r[2].toLowerCase().includes(d)
-);
-
-mostrar(filtrados);
-}
-
-function ordenar(tipo){
-if(tipo === "precio"){
-data.sort((a,b)=>parseFloat(a[14]) - parseFloat(b[14]));
-}
-mostrar(data);
-}
-
+/* render */
 function mostrar(datos){
 
 let html = "";
 
 datos.forEach(r => {
 
-let cupos = parseInt(r[13]);
-let urgencia = cupos <= 3 ? `<div class="urgency">Últimos cupos</div>` : "";
+if(r.length < 16) return;
 
-let logoIda = getLogo(r[3]);
-let logoVuelta = getLogo(r[9]);
+let cupos = parseInt(r[13]);
+let color = cupoColor(r[13]);
+let urgencia = cupos <= 3 ? `<span class="urgency">Últimos</span>` : "";
 
 let wa = `https://wa.me/59800000000?text=${encodeURIComponent(
-`Consulta ${r[1]}-${r[2]} ${r[4]}`
+`Consulta vuelo ${r[1]}-${r[2]} ${r[4]} USD ${r[14]}`
 )}`;
 
 html += `
-<div class="card">
+<div class="row">
 
-<div class="left">
-
-<div class="flight-row">
-<div>
-<div class="route">${r[1]} → ${r[2]}</div>
-<div class="time">${r[5]} - ${r[6]}</div>
-<div class="airline">
-${logoIda ? `<img src="${logoIda}">` : ""} ${r[3]}
-</div>
-</div>
-<div class="line"></div>
-<div>${r[0]}</div>
+<div class="col route">
+${r[1]} → ${r[2]}
 </div>
 
-<div class="flight-row">
-<div>
-<div class="route">${r[2]} → ${r[1]}</div>
-<div class="time">${r[11]} - ${r[12]}</div>
-<div class="airline">
-${logoVuelta ? `<img src="${logoVuelta}">` : ""} ${r[9]}
-</div>
-</div>
-<div class="line"></div>
-<div>${r[0]}</div>
+<div class="col time">
+✈ ${r[5]}-${r[6]}
 </div>
 
+<div class="col airline">
+${r[3]}
 </div>
 
-<div class="right">
-<div class="price">USD ${r[14]}</div>
-
-<div class="badges">
-<span class="${cupoColor(r[13])}">${r[13]} cupos</span>
-<span>${r[15]}</span>
+<div class="col return">
+↩ ${r[11]}-${r[12]}
 </div>
 
-${urgencia}
+<div class="col baggage">
+${r[15]}
+</div>
 
-<a class="btn" href="${wa}" target="_blank">Consultar</a>
+<div class="col cupos ${color}">
+${r[13]} ${urgencia}
+</div>
+
+<div class="col price">
+USD ${r[14]}
+</div>
+
+<div class="col">
+<a class="btn" href="${wa}" target="_blank">OK</a>
 </div>
 
 </div>
