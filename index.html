@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <title>Promos Aéreas Liberty</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 
 <style>
 
@@ -26,39 +26,44 @@ width:100%;
 padding:10px;
 border-radius:8px;
 border:1px solid #ddd;
-font-size:14px;
 }
 
-/* tabla ultra compacta */
+/* contenedor vuelo */
+.flight{
+background:white;
+border-radius:10px;
+margin-bottom:10px;
+box-shadow:0 3px 10px rgba(0,0,0,0.06);
+overflow:hidden;
+}
+
+/* fila */
 .row{
 display:grid;
-grid-template-columns: 1.2fr 1fr 1fr 1fr 1fr 0.8fr 1fr 0.6fr;
+grid-template-columns: 1.3fr 1fr 1fr 1fr 0.8fr 1fr 0.7fr;
 gap:8px;
-align-items:center;
-background:white;
-padding:8px 10px;
-border-radius:8px;
-margin-bottom:6px;
+padding:8px 12px;
 font-size:12px;
-box-shadow:0 2px 6px rgba(0,0,0,0.05);
-transition:0.2s;
+align-items:center;
 }
 
-.row:hover{
-background:#f7f9fc;
+.row.ida{
+background:#ffffff;
+border-bottom:1px solid #eee;
 }
 
-.col{
-white-space:nowrap;
-overflow:hidden;
-text-overflow:ellipsis;
+.row.vuelta{
+background:#f9fbff;
 }
 
+/* columnas */
 .route{font-weight:600;}
-
+.time{color:#555;}
+.airline{color:#777;}
+.scale{color:#999; font-size:11px;}
 .price{
-font-size:16px;
 font-weight:700;
+font-size:16px;
 color:#0b3a6f;
 }
 
@@ -67,11 +72,11 @@ color:#0b3a6f;
 .medium{color:#ffa500;}
 .high{color:#28a745;}
 
-.urgency{
+.badge{
+font-size:10px;
 background:#ff4d4d;
 color:white;
-font-size:9px;
-padding:2px 4px;
+padding:2px 5px;
 border-radius:4px;
 margin-left:4px;
 }
@@ -80,29 +85,16 @@ margin-left:4px;
 .btn{
 background:#0b3a6f;
 color:white;
-padding:4px 6px;
-border-radius:5px;
-font-size:11px;
+padding:6px 10px;
+border-radius:6px;
+font-size:12px;
 text-decoration:none;
+cursor:pointer;
+display:inline-block;
 }
 
-/* encabezado */
-.header{
-display:grid;
-grid-template-columns: 1.2fr 1fr 1fr 1fr 1fr 0.8fr 1fr 0.6fr;
-gap:8px;
-font-size:11px;
-color:#777;
-margin-bottom:8px;
-padding:0 10px;
-}
-
-/* responsive */
-@media(max-width:768px){
-.row,.header{
-grid-template-columns: 1fr 1fr 1fr;
-font-size:11px;
-}
+.btn:hover{
+background:#092c55;
 }
 
 </style>
@@ -112,17 +104,6 @@ font-size:11px;
 
 <div class="search-box">
 <input type="text" id="buscador" placeholder="Buscar destino, origen o compañía...">
-</div>
-
-<div class="header">
-<div>Ruta</div>
-<div>Ida</div>
-<div>Aerolínea</div>
-<div>Vuelta</div>
-<div>Equipaje</div>
-<div>Cupos</div>
-<div>Precio</div>
-<div></div>
 </div>
 
 <div id="resultados"></div>
@@ -150,7 +131,7 @@ r.join(" ").toLowerCase().includes(val)
 mostrar(filtrado);
 });
 
-/* color cupos */
+/* cupos color */
 function cupoColor(c){
 c = parseInt(c);
 if(c <= 3) return "low";
@@ -158,62 +139,78 @@ if(c <= 7) return "medium";
 return "high";
 }
 
+/* mail */
+function consultar(ruta, datos){
+let cupos = prompt("¿Cuántos cupos querés solicitar?");
+if(!cupos) return;
+
+let subject = `Consulta ${ruta}`;
+
+let body = `
+Ruta: ${ruta}
+Cupos solicitados: ${cupos}
+
+Detalles:
+${datos}
+`;
+
+window.location.href = `mailto:reservas@tuempresa.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+}
+
 /* render */
 function mostrar(datos){
 
 let html = "";
 
-datos.forEach(r => {
+for(let i=0; i<datos.length; i+=2){
 
-if(r.length < 16) return;
+let ida = datos[i];
+let vuelta = datos[i+1];
 
-let cupos = parseInt(r[13]);
-let color = cupoColor(r[13]);
-let urgencia = cupos <= 3 ? `<span class="urgency">Últimos</span>` : "";
+if(!vuelta) continue;
 
-let wa = `https://wa.me/59800000000?text=${encodeURIComponent(
-`Consulta vuelo ${r[1]}-${r[2]} ${r[4]} USD ${r[14]}`
-)}`;
+let ruta = `${ida[1]} - ${ida[2]}`;
+let color = cupoColor(ida[13]);
+let urgencia = ida[13] <= 3 ? `<span class="badge">Últimos</span>` : "";
+
+let detalles = `
+IDA:
+${ida.join(" ")}
+
+VUELTA:
+${vuelta.join(" ")}
+`;
 
 html += `
-<div class="row">
+<div class="flight">
 
-<div class="col route">
-${r[1]} → ${r[2]}
+<div class="row ida">
+<div class="route">${ida[1]} → ${ida[2]}</div>
+<div class="time">✈ ${ida[5]} - ${ida[6]}</div>
+<div class="airline">${ida[3]}</div>
+<div class="scale">Escala: ${ida[0]}</div>
+<div class="${color}">${ida[13]} ${urgencia}</div>
+<div class="price">USD ${ida[14]}</div>
+<div>
+<span class="btn" onclick='consultar("${ruta}", \`${detalles}\`)'>Consultar</span>
+</div>
 </div>
 
-<div class="col time">
-✈ ${r[5]}-${r[6]}
+<div class="row vuelta">
+<div class="route">${vuelta[1]} → ${vuelta[2]}</div>
+<div class="time">↩ ${vuelta[5]} - ${vuelta[6]}</div>
+<div class="airline">${vuelta[3]}</div>
+<div class="scale">
+Esc: ${vuelta[7]} → ${vuelta[8]}
 </div>
-
-<div class="col airline">
-${r[3]}
-</div>
-
-<div class="col return">
-↩ ${r[11]}-${r[12]}
-</div>
-
-<div class="col baggage">
-${r[15]}
-</div>
-
-<div class="col cupos ${color}">
-${r[13]} ${urgencia}
-</div>
-
-<div class="col price">
-USD ${r[14]}
-</div>
-
-<div class="col">
-<a class="btn" href="${wa}" target="_blank">OK</a>
+<div></div>
+<div></div>
+<div></div>
 </div>
 
 </div>
 `;
-
-});
+}
 
 document.getElementById("resultados").innerHTML = html;
 
