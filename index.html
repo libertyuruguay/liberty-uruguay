@@ -28,7 +28,7 @@ border-radius:8px;
 border:1px solid #ddd;
 }
 
-/* contenedor vuelo */
+/* contenedor */
 .flight{
 background:white;
 border-radius:10px;
@@ -37,10 +37,10 @@ box-shadow:0 3px 10px rgba(0,0,0,0.06);
 overflow:hidden;
 }
 
-/* fila */
+/* filas */
 .row{
 display:grid;
-grid-template-columns: 1.3fr 1fr 1fr 1fr 0.8fr 1fr 0.7fr;
+grid-template-columns: 1.4fr 1fr 1fr 1.2fr 0.8fr 1fr 0.8fr;
 gap:8px;
 padding:8px 12px;
 font-size:12px;
@@ -60,7 +60,8 @@ background:#f9fbff;
 .route{font-weight:600;}
 .time{color:#555;}
 .airline{color:#777;}
-.scale{color:#999; font-size:11px;}
+.scale{color:#999;font-size:11px;}
+
 .price{
 font-weight:700;
 font-size:16px;
@@ -88,7 +89,6 @@ color:white;
 padding:6px 10px;
 border-radius:6px;
 font-size:12px;
-text-decoration:none;
 cursor:pointer;
 display:inline-block;
 }
@@ -118,7 +118,7 @@ fetch(url)
 .then(res => res.text())
 .then(csv => {
 let rows = csv.split("\n").map(r => r.split(","));
-data = rows.slice(1);
+data = rows.slice(2).filter(r => r.length >= 16 && r[1]);
 mostrar(data);
 });
 
@@ -131,7 +131,7 @@ r.join(" ").toLowerCase().includes(val)
 mostrar(filtrado);
 });
 
-/* cupos color */
+/* color cupos */
 function cupoColor(c){
 c = parseInt(c);
 if(c <= 3) return "low";
@@ -140,7 +140,8 @@ return "high";
 }
 
 /* mail */
-function consultar(ruta, datos){
+function consultar(ruta, ida, vuelta){
+
 let cupos = prompt("¿Cuántos cupos querés solicitar?");
 if(!cupos) return;
 
@@ -150,8 +151,21 @@ let body = `
 Ruta: ${ruta}
 Cupos solicitados: ${cupos}
 
-Detalles:
-${datos}
+IDA:
+${ida[1]} → ${ida[2]}
+Compañía: ${ida[3]}
+Fecha: ${ida[4]}
+Horario: ${ida[5]} - ${ida[6]}
+
+VUELTA:
+${vuelta[1]} → ${vuelta[2]}
+Compañía: ${vuelta[3]}
+Fecha: ${vuelta[4]}
+Horario: ${vuelta[5]} - ${vuelta[6]}
+Escala: ${vuelta[7]} → ${vuelta[8]}
+
+Equipaje: ${ida[15]}
+Tarifa: USD ${ida[14]}
 `;
 
 window.location.href = `mailto:reservas@tuempresa.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
@@ -173,14 +187,6 @@ let ruta = `${ida[1]} - ${ida[2]}`;
 let color = cupoColor(ida[13]);
 let urgencia = ida[13] <= 3 ? `<span class="badge">Últimos</span>` : "";
 
-let detalles = `
-IDA:
-${ida.join(" ")}
-
-VUELTA:
-${vuelta.join(" ")}
-`;
-
 html += `
 <div class="flight">
 
@@ -188,11 +194,11 @@ html += `
 <div class="route">${ida[1]} → ${ida[2]}</div>
 <div class="time">✈ ${ida[5]} - ${ida[6]}</div>
 <div class="airline">${ida[3]}</div>
-<div class="scale">Escala: ${ida[0]}</div>
+<div></div>
 <div class="${color}">${ida[13]} ${urgencia}</div>
 <div class="price">USD ${ida[14]}</div>
 <div>
-<span class="btn" onclick='consultar("${ruta}", \`${detalles}\`)'>Consultar</span>
+<span class="btn" onclick='consultar("${ruta}", ${JSON.stringify(ida)}, ${JSON.stringify(vuelta)})'>Consultar</span>
 </div>
 </div>
 
@@ -200,9 +206,7 @@ html += `
 <div class="route">${vuelta[1]} → ${vuelta[2]}</div>
 <div class="time">↩ ${vuelta[5]} - ${vuelta[6]}</div>
 <div class="airline">${vuelta[3]}</div>
-<div class="scale">
-Esc: ${vuelta[7]} → ${vuelta[8]}
-</div>
+<div class="scale">Esc: ${vuelta[7]} → ${vuelta[8]}</div>
 <div></div>
 <div></div>
 <div></div>
