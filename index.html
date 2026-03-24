@@ -1,100 +1,161 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
 <meta charset="UTF-8">
-<title>Promos Aéreas Liberty</title>
+<title>Cupos Liberty</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 
 <style>
 
 body{
 font-family:'Inter',sans-serif;
-background:#f4f6fb;
+background:#f5f6f8;
 margin:0;
+}
+
+/* HEADER */
+header{
+background:#0b3a6f;
+padding:15px;
+}
+
+.headerbox{
+display:flex;
+align-items:center;
+justify-content:center;
+gap:15px;
+color:white;
+font-size:22px;
+font-weight:600;
+}
+
+header img{height:50px;}
+
+/* CONTAINER */
+.container{
+max-width:1200px;
+margin:auto;
+padding:30px;
+}
+
+/* CARD */
+.card{
+background:white;
+border-radius:10px;
+margin-bottom:20px;
+box-shadow:0 2px 10px rgba(0,0,0,0.08);
 padding:20px;
 }
 
-/* buscador */
-.search-box{
-max-width:900px;
-margin:0 auto 20px;
-}
-
-input{
-width:100%;
-padding:10px;
-border-radius:8px;
-border:1px solid #ddd;
-}
-
-/* contenedor */
-.flight{
-background:white;
-border-radius:10px;
-margin-bottom:10px;
-box-shadow:0 3px 10px rgba(0,0,0,0.06);
-overflow:hidden;
-}
-
-/* filas */
-.row{
+/* GRID */
+.grid{
 display:grid;
-grid-template-columns: 1.4fr 1fr 1fr 1.2fr 0.8fr 1fr 0.8fr;
-gap:8px;
-padding:8px 12px;
-font-size:12px;
+grid-template-columns:1fr 1fr 300px;
+gap:20px;
 align-items:center;
 }
 
-.row.ida{
-background:#ffffff;
-border-bottom:1px solid #eee;
+/* BLOQUES */
+.box{
+border-right:1px solid #eee;
+padding-right:15px;
 }
 
-.row.vuelta{
-background:#f9fbff;
+.box:last-child{
+border:none;
 }
 
-/* columnas */
-.route{font-weight:600;}
-.time{color:#555;}
-.airline{color:#777;}
-.scale{color:#999;font-size:11px;}
-
-.price{
-font-weight:700;
-font-size:16px;
-color:#0b3a6f;
+/* TITULOS */
+.title{
+font-size:13px;
+color:#666;
+margin-bottom:8px;
 }
 
-/* cupos */
-.low{color:#ff4d4d;font-weight:600;}
-.medium{color:#ffa500;}
-.high{color:#28a745;}
-
-.badge{
-font-size:10px;
-background:#ff4d4d;
-color:white;
-padding:2px 5px;
-border-radius:4px;
-margin-left:4px;
+/* TIMES */
+.times{
+display:flex;
+justify-content:space-between;
+align-items:center;
 }
 
-/* botón */
-.btn{
-background:#0b3a6f;
-color:white;
-padding:6px 10px;
+.time{font-size:22px;font-weight:600;}
+.city{font-size:13px;color:#666;}
+
+.center{text-align:center;}
+
+.duration{font-size:12px;color:#666;margin:5px 0;}
+
+.line{
+height:1px;
+background:#ccc;
+position:relative;
+}
+
+.dot{
+width:6px;height:6px;background:#ccc;border-radius:50%;
+position:absolute;top:-3px;
+}
+
+.dot.start{left:0;}
+.dot.end{right:0;}
+.dot.middle{left:50%;transform:translateX(-50%);}
+
+.operado{
+font-size:12px;
+color:#666;
+margin-top:8px;
+}
+
+/* BOTON DETALLES */
+.details{
+margin-top:10px;
+display:inline-block;
+padding:6px 12px;
+border:1px solid #0b3a6f;
 border-radius:6px;
 font-size:12px;
+color:#0b3a6f;
 cursor:pointer;
-display:inline-block;
 }
 
-.btn:hover{
-background:#092c55;
+/* RIGHT */
+.right{
+text-align:center;
+}
+
+.price{font-size:26px;font-weight:600;}
+.btn{
+margin-top:10px;
+background:#163d6b;
+color:white;
+border:none;
+padding:10px;
+border-radius:6px;
+cursor:pointer;
+width:100%;
+}
+
+/* MODAL */
+.modal{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.5);
+display:none;
+justify-content:center;
+align-items:center;
+}
+
+.modal-box{
+background:white;
+width:500px;
+padding:20px;
+border-radius:10px;
 }
 
 </style>
@@ -102,122 +163,168 @@ background:#092c55;
 
 <body>
 
-<div class="search-box">
-<input type="text" id="buscador" placeholder="Buscar destino, origen o compañía...">
+<header>
+<div class="headerbox">
+<img src="liberty.png">
+<span>Cupos Aéreos Disponibles</span>
 </div>
+</header>
 
-<div id="resultados"></div>
+<div class="container" id="cards"></div>
+
+<!-- MODAL -->
+<div class="modal" id="modal">
+<div class="modal-box">
+<h3>Detalles</h3>
+<div id="detalle"></div>
+<button onclick="cerrarModal()">Cerrar</button>
+</div>
+</div>
 
 <script>
 
-const url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS1RniGt74piEAVb7oVGRQ5NQ-cH_8_gY5V0ZTKWIegH0Osb1SQ_la4lW5nT3E7g2wnjjcHYGSYuQnt/pub?output=csv";
+const CSV="TU_CSV_AQUI"
 
-let data = [];
+fetch(CSV)
+.then(r=>r.text())
+.then(data=>{
 
-fetch(url)
-.then(res => res.text())
-.then(csv => {
-let rows = csv.split("\n").map(r => r.split(","));
-data = rows.slice(2).filter(r => r.length >= 16 && r[1]);
-mostrar(data);
-});
+let rows=data.split("\n").slice(2).map(r=>r.split(","))
 
-/* buscador */
-document.getElementById("buscador").addEventListener("input", e => {
-let val = e.target.value.toLowerCase();
-let filtrado = data.filter(r =>
-r.join(" ").toLowerCase().includes(val)
-);
-mostrar(filtrado);
-});
-
-/* color cupos */
-function cupoColor(c){
-c = parseInt(c);
-if(c <= 3) return "low";
-if(c <= 7) return "medium";
-return "high";
+for(let i=0;i<rows.length;i+=2){
+crearCard(rows[i], rows[i+1])
 }
 
-/* mail */
-function consultar(ruta, ida, vuelta){
+})
 
-let cupos = prompt("¿Cuántos cupos querés solicitar?");
-if(!cupos) return;
+function calcularDuracion(salida,llegada){
 
-let subject = `Consulta ${ruta}`;
+let [h1,m1]=salida.split(":").map(Number)
+let [h2,m2]=llegada.split(":").map(Number)
 
-let body = `
-Ruta: ${ruta}
-Cupos solicitados: ${cupos}
+let ini=h1*60+m1
+let fin=h2*60+m2
+if(fin<ini) fin+=1440
 
-IDA:
-${ida[1]} → ${ida[2]}
-Compañía: ${ida[3]}
-Fecha: ${ida[4]}
-Horario: ${ida[5]} - ${ida[6]}
-
-VUELTA:
-${vuelta[1]} → ${vuelta[2]}
-Compañía: ${vuelta[3]}
-Fecha: ${vuelta[4]}
-Horario: ${vuelta[5]} - ${vuelta[6]}
-Escala: ${vuelta[7]} → ${vuelta[8]}
-
-Equipaje: ${ida[15]}
-Tarifa: USD ${ida[14]}
-`;
-
-window.location.href = `mailto:reservas@tuempresa.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+let t=fin-ini
+return `${Math.floor(t/60)}h ${t%60}m`
 }
 
-/* render */
-function mostrar(datos){
+function crearCard(ida, regreso){
 
-let html = "";
+let escalaI = ida[0]=="SI"
+let escalaR = regreso[0]=="SI"
 
-for(let i=0; i<datos.length; i+=2){
+let card=`
+<div class="card">
 
-let ida = datos[i];
-let vuelta = datos[i+1];
+<div class="grid">
 
-if(!vuelta) continue;
+<!-- IDA -->
+<div class="box">
 
-let ruta = `${ida[1]} - ${ida[2]}`;
-let color = cupoColor(ida[13]);
-let urgencia = ida[13] <= 3 ? `<span class="badge">Últimos</span>` : "";
+<div class="title">✈️ IDA</div>
 
-html += `
-<div class="flight">
-
-<div class="row ida">
-<div class="route">${ida[1]} → ${ida[2]}</div>
-<div class="time">✈ ${ida[5]} - ${ida[6]}</div>
-<div class="airline">${ida[3]}</div>
-<div></div>
-<div class="${color}">${ida[13]} ${urgencia}</div>
-<div class="price">USD ${ida[14]}</div>
+<div class="times">
 <div>
-<span class="btn" onclick='consultar("${ruta}", ${JSON.stringify(ida)}, ${JSON.stringify(vuelta)})'>Consultar</span>
+<div class="time">${ida[5]}</div>
+<div class="city">${ida[1]}</div>
+</div>
+
+<div class="center">
+<div class="duration">${calcularDuracion(ida[5], escalaI?ida[12]:ida[6])}</div>
+<div class="line">
+<div class="dot start"></div>
+${escalaI?'<div class="dot middle"></div>':''}
+<div class="dot end"></div>
 </div>
 </div>
 
-<div class="row vuelta">
-<div class="route">${vuelta[1]} → ${vuelta[2]}</div>
-<div class="time">↩ ${vuelta[5]} - ${vuelta[6]}</div>
-<div class="airline">${vuelta[3]}</div>
-<div class="scale">Esc: ${vuelta[7]} → ${vuelta[8]}</div>
-<div></div>
-<div></div>
-<div></div>
+<div style="text-align:right">
+<div class="time">${escalaI?ida[12]:ida[6]}</div>
+<div class="city">${ida[2]}</div>
+</div>
+</div>
+
+<div class="operado">${ida[3]}</div>
+
+<div class="details" onclick='verDetalle(${JSON.stringify(ida)})'>
+Ver detalles
 </div>
 
 </div>
-`;
+
+<!-- REGRESO -->
+<div class="box">
+
+<div class="title">🔁 REGRESO</div>
+
+<div class="times">
+<div>
+<div class="time">${regreso[5]}</div>
+<div class="city">${regreso[1]}</div>
+</div>
+
+<div class="center">
+<div class="duration">${calcularDuracion(regreso[5], escalaR?regreso[12]:regreso[6])}</div>
+<div class="line">
+<div class="dot start"></div>
+${escalaR?'<div class="dot middle"></div>':''}
+<div class="dot end"></div>
+</div>
+</div>
+
+<div style="text-align:right">
+<div class="time">${escalaR?regreso[12]:regreso[6]}</div>
+<div class="city">${regreso[2]}</div>
+</div>
+</div>
+
+<div class="operado">${regreso[3]}</div>
+
+<div class="details" onclick='verDetalle(${JSON.stringify(regreso)})'>
+Ver detalles
+</div>
+
+</div>
+
+<!-- PRECIO -->
+<div class="right">
+<div class="price">${ida[14]} USD</div>
+<div>${ida[13]} cupos</div>
+<div>${ida[15]}</div>
+
+<button class="btn" onclick="consultar('${ida[1]}-${ida[2]}')">
+Consultar
+</button>
+</div>
+
+</div>
+
+</div>
+`
+
+document.getElementById("cards").innerHTML+=card
+
 }
 
-document.getElementById("resultados").innerHTML = html;
+function verDetalle(data){
 
+let html = `
+Salida: ${data[1]} ${data[5]}<br>
+Llegada: ${data[2]} ${data[6]}
+`
+
+document.getElementById("detalle").innerHTML = html
+document.getElementById("modal").style.display="flex"
+}
+
+function cerrarModal(){
+document.getElementById("modal").style.display="none"
+}
+
+function consultar(ruta){
+window.location.href=`mailto:jose@libertyuruguay.com.uy?subject=${ruta}`
 }
 
 </script>
