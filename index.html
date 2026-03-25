@@ -5,7 +5,6 @@
 <title>Cupos Liberty</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 
 <style>
@@ -59,17 +58,29 @@ border-bottom:none;
 
 const CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS1RniGt74piEAVb7oVGRQ5NQ-cH_8_gY5V0ZTKWIegH0Osb1SQ_la4lW5nT3E7g2wnjjcHYGSYuQnt/pub?output=csv"
 
-// 🔥 LEER CSV Y AGRUPAR POR ID
+// 🚀 PARSE ROBUSTO
 Papa.parse(CSV, {
   download: true,
   header: true,
+  skipEmptyLines: true,
   complete: function(results){
+
+    let data = results.data
+
+    // 🔥 LIMPIAR HEADERS (espacios ocultos)
+    data = data.map(row => {
+      let clean = {}
+      for (let key in row){
+        clean[key.trim()] = row[key]
+      }
+      return clean
+    })
 
     let vuelos = {}
 
-    results.data.forEach(row => {
+    data.forEach(row => {
 
-      if(!row.ID) return
+      if(!row || !row.ID) return
 
       if(!vuelos[row.ID]){
         vuelos[row.ID] = []
@@ -87,22 +98,36 @@ Papa.parse(CSV, {
 
     })
 
+  },
+  error: function(err){
+    console.error("Error CSV:", err)
+    document.getElementById("cards").innerHTML = "Error cargando datos"
   }
 })
 
-// ⏱ CALCULAR DURACIÓN TOTAL
+// ⏱ FUNCIÓN SEGURA
 function calcularDuracion(salida,llegada){
-if(!salida || !llegada) return "-"
+
+if(!salida || !llegada || !salida.includes(":") || !llegada.includes(":")){
+  return "-"
+}
+
 let [h1,m1]=salida.split(":").map(Number)
 let [h2,m2]=llegada.split(":").map(Number)
+
+if(isNaN(h1) || isNaN(h2)) return "-"
+
 let ini=h1*60+m1
 let fin=h2*60+m2
+
 if(fin<ini) fin+=1440
+
 let t=fin-ini
+
 return `${Math.floor(t/60)}h ${t%60}m`
 }
 
-// ✈️ CREAR CARD
+// ✈️ CARD
 function crearCard(tramos){
 
 let id = Math.random().toString(36).substring(7)
@@ -122,15 +147,15 @@ let card = `
 
 <div class="route">
 <div>
-<div class="city">${primero.ORIGEN}</div>
-<div class="time">${salida}</div>
+<div class="city">${primero.ORIGEN || "-"}</div>
+<div class="time">${salida || "-"}</div>
 </div>
 
 <div class="arrow">→</div>
 
 <div>
-<div class="city">${ultimo.DESTINO}</div>
-<div class="time">${llegada}</div>
+<div class="city">${ultimo.DESTINO || "-"}</div>
+<div class="time">${llegada || "-"}</div>
 </div>
 </div>
 
@@ -146,7 +171,7 @@ Ver detalles ⌄
 </div>
 
 <div class="right">
-<div class="price">${primero.TARIFA} USD</div>
+<div class="price">${primero.TARIFA || "-"} USD</div>
 <button class="btn">Seleccionar</button>
 </div>
 
@@ -160,7 +185,7 @@ ${renderTramos(tramos)}
 document.getElementById("cards").innerHTML += card
 }
 
-// 📋 DETALLE DE TRAMOS
+// 📋 DETALLE
 function renderTramos(tramos){
 
 let html = ""
@@ -169,17 +194,17 @@ tramos.forEach((t, i) => {
 
   html += `
   <div class="segmento">
-    <div><b>${t.COMPAÑIA}</b></div>
-    <div>${t.ORIGEN} ${t["HORA SALIDA"]} → ${t.DESTINO} ${t["HORA LLEGADA"]}</div>
-    <div style="color:#6b7280;font-size:12px;">${t.FECHA}</div>
-    <div style="color:#6b7280;font-size:12px;">Equipaje: ${t.EQUIPAJE}</div>
+    <div><b>${t.COMPAÑIA || "-"}</b></div>
+    <div>${t.ORIGEN || "-"} ${t["HORA SALIDA"] || "-"} → ${t.DESTINO || "-"} ${t["HORA LLEGADA"] || "-"}</div>
+    <div style="color:#6b7280;font-size:12px;">${t.FECHA || "-"}</div>
+    <div style="color:#6b7280;font-size:12px;">Equipaje: ${t.EQUIPAJE || "-"}</div>
   </div>
   `
 
   if(i < tramos.length - 1){
     html += `
     <div style="margin:6px 0;color:#6b7280;">
-      Escala en ${t.DESTINO}
+      Escala en ${t.DESTINO || "-"}
     </div>
     `
   }
