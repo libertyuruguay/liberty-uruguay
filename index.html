@@ -16,7 +16,6 @@ background:#f3f5f9;
 margin:0;
 }
 
-/* HEADER */
 header{
 background:white;
 border-bottom:1px solid #e6e8ec;
@@ -39,14 +38,12 @@ font-weight:600;
 color:#0b3a6f;
 }
 
-/* CONTAINER */
 .container{
 max-width:1100px;
 margin:auto;
 padding:30px 20px;
 }
 
-/* CARD */
 .flight{
 background:white;
 border-radius:10px;
@@ -178,7 +175,6 @@ font-size:12px;
 margin-top:8px;
 }
 
-/* DETALLE */
 .detalle{
 display:none;
 margin-top:15px;
@@ -217,10 +213,21 @@ const CSV="https://docs.google.com/spreadsheets/d/e/2PACX-1vS1RniGt74piEAVb7oVGR
 fetch(CSV)
 .then(r=>r.text())
 .then(data=>{
-let rows=data.split("\\n").slice(2).map(r=>r.split(","))
+
+let rows = data
+  .split("\\n")
+  .slice(2)
+  .map(r => {
+    let cols = r.match(/(\".*?\"|[^\",\\s]+)(?=\\s*,|\\s*$)/g);
+    return cols ? cols.map(c => c.replace(/(^\"|\"$)/g, \"\")) : [];
+  });
+
 for(let i=0;i<rows.length;i+=2){
+if(rows[i] && rows[i+1]){
 crearCard(rows[i], rows[i+1])
 }
+}
+
 })
 
 function calcularDuracion(salida,llegada){
