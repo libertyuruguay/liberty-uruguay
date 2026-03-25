@@ -5,62 +5,72 @@
 <meta charset="UTF-8">
 <title>Cupos Liberty</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
 
 body{
 font-family:'Inter',sans-serif;
-background:#f5f6f8;
+background:#f3f5f9;
 margin:0;
 }
 
 /* HEADER */
 header{
-background:#0b3a6f;
+background:white;
+border-bottom:1px solid #e6e8ec;
 padding:15px;
 }
 
 .headerbox{
 display:flex;
 align-items:center;
-justify-content:center;
-gap:15px;
-color:white;
-font-size:22px;
-font-weight:600;
+justify-content:space-between;
+max-width:1200px;
+margin:auto;
 }
 
-header img{height:50px;}
+.headerbox img{height:45px;}
+
+.headerbox span{
+font-size:18px;
+font-weight:600;
+color:#0b3a6f;
+}
 
 /* CONTAINER */
 .container{
 max-width:1200px;
 margin:auto;
-padding:30px;
+padding:30px 20px;
 }
 
 /* CARD */
 .card{
 background:white;
-border-radius:10px;
+border-radius:14px;
 margin-bottom:20px;
-box-shadow:0 2px 10px rgba(0,0,0,0.08);
-padding:20px;
+box-shadow:0 4px 20px rgba(0,0,0,0.06);
+padding:25px;
+transition:.2s;
+}
+
+.card:hover{
+transform:translateY(-3px);
 }
 
 /* GRID */
 .grid{
 display:grid;
-grid-template-columns:1fr 1fr 300px;
-gap:20px;
+grid-template-columns:1fr 1fr 250px;
+gap:25px;
 align-items:center;
 }
 
 /* BLOQUES */
 .box{
 border-right:1px solid #eee;
-padding-right:15px;
+padding-right:20px;
 }
 
 .box:last-child{
@@ -69,9 +79,11 @@ border:none;
 
 /* TITULOS */
 .title{
-font-size:13px;
-color:#666;
-margin-bottom:8px;
+font-size:12px;
+color:#9aa1ac;
+margin-bottom:10px;
+font-weight:500;
+letter-spacing:.5px;
 }
 
 /* TIMES */
@@ -81,61 +93,95 @@ justify-content:space-between;
 align-items:center;
 }
 
-.time{font-size:22px;font-weight:600;}
-.city{font-size:13px;color:#666;}
+.time{
+font-size:24px;
+font-weight:700;
+color:#1c1e21;
+}
+
+.city{
+font-size:13px;
+color:#6b7280;
+}
 
 .center{text-align:center;}
 
-.duration{font-size:12px;color:#666;margin:5px 0;}
+.duration{
+font-size:12px;
+color:#6b7280;
+margin:6px 0;
+}
 
+/* LINEA */
 .line{
-height:1px;
-background:#ccc;
+height:2px;
+background:#d1d5db;
 position:relative;
+border-radius:2px;
 }
 
 .dot{
-width:6px;height:6px;background:#ccc;border-radius:50%;
-position:absolute;top:-3px;
+width:8px;
+height:8px;
+background:#0b3a6f;
+border-radius:50%;
+position:absolute;
+top:-3px;
 }
 
 .dot.start{left:0;}
 .dot.end{right:0;}
 .dot.middle{left:50%;transform:translateX(-50%);}
 
+/* OPERADO */
 .operado{
 font-size:12px;
-color:#666;
-margin-top:8px;
+color:#9aa1ac;
+margin-top:10px;
 }
 
 /* BOTON DETALLES */
 .details{
-margin-top:10px;
+margin-top:12px;
 display:inline-block;
-padding:6px 12px;
-border:1px solid #0b3a6f;
-border-radius:6px;
 font-size:12px;
 color:#0b3a6f;
 cursor:pointer;
+font-weight:500;
 }
 
 /* RIGHT */
 .right{
-text-align:center;
+text-align:right;
 }
 
-.price{font-size:26px;font-weight:600;}
+.price{
+font-size:30px;
+font-weight:700;
+color:#111827;
+}
+
+.subinfo{
+font-size:13px;
+color:#6b7280;
+margin-top:5px;
+}
+
 .btn{
-margin-top:10px;
-background:#163d6b;
+margin-top:15px;
+background:#0b3a6f;
 color:white;
 border:none;
-padding:10px;
-border-radius:6px;
+padding:12px;
+border-radius:8px;
 cursor:pointer;
 width:100%;
+font-weight:600;
+transition:.2s;
+}
+
+.btn:hover{
+background:#092c52;
 }
 
 /* MODAL */
@@ -154,8 +200,8 @@ align-items:center;
 .modal-box{
 background:white;
 width:500px;
-padding:20px;
-border-radius:10px;
+padding:25px;
+border-radius:12px;
 }
 
 </style>
@@ -166,7 +212,7 @@ border-radius:10px;
 <header>
 <div class="headerbox">
 <img src="Liberty-01.png">
-<span>Cupos Aéreos Disponibles</span>
+<span>Cupos Aéreos</span>
 </div>
 </header>
 
@@ -175,8 +221,9 @@ border-radius:10px;
 <!-- MODAL -->
 <div class="modal" id="modal">
 <div class="modal-box">
-<h3>Detalles</h3>
+<h3>Detalles del vuelo</h3>
 <div id="detalle"></div>
+<br>
 <button onclick="cerrarModal()">Cerrar</button>
 </div>
 </div>
@@ -223,7 +270,7 @@ let card=`
 <!-- IDA -->
 <div class="box">
 
-<div class="title">✈️ IDA</div>
+<div class="title">IDA</div>
 
 <div class="times">
 <div>
@@ -257,7 +304,7 @@ Ver detalles
 <!-- REGRESO -->
 <div class="box">
 
-<div class="title">🔁 REGRESO</div>
+<div class="title">REGRESO</div>
 
 <div class="times">
 <div>
@@ -291,8 +338,8 @@ Ver detalles
 <!-- PRECIO -->
 <div class="right">
 <div class="price">${ida[14]} USD</div>
-<div>${ida[13]} cupos</div>
-<div>${ida[15]}</div>
+<div class="subinfo">${ida[13]} cupos</div>
+<div class="subinfo">${ida[15]}</div>
 
 <button class="btn" onclick="consultar('${ida[1]}-${ida[2]}')">
 Consultar
@@ -311,8 +358,9 @@ document.getElementById("cards").innerHTML+=card
 function verDetalle(data){
 
 let html = `
-Salida: ${data[1]} ${data[5]}<br>
-Llegada: ${data[2]} ${data[6]}
+<b>Salida:</b> ${data[1]} ${data[5]}<br>
+<b>Llegada:</b> ${data[2]} ${data[6]}<br>
+<b>Aerolínea:</b> ${data[3]}
 `
 
 document.getElementById("detalle").innerHTML = html
@@ -324,7 +372,7 @@ document.getElementById("modal").style.display="none"
 }
 
 function consultar(ruta){
-window.location.href=`mailto:jose@libertyuruguay.com.uy?subject=${ruta}`
+window.location.href=`mailto:jose@libertyuruguay.com.uy?subject=Consulta vuelo ${ruta}`
 }
 
 </script>
