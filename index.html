@@ -1,14 +1,12 @@
+```html
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
 <meta charset="UTF-8">
 <title>Cupos Liberty</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-<!-- ✅ LIBRERÍA CSV PRO -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 
 <style>
@@ -34,9 +32,6 @@ display:flex;align-items:center;justify-content:center;}
 .middle{text-align:center;min-width:160px;}
 .duration,.scale{font-size:13px;color:#6b7280;}
 
-.icons{display:flex;gap:8px;justify-content:center;margin-top:5px;}
-.icon i{font-size:12px;color:#6b7280;}
-
 .toggle{cursor:pointer;color:#0ea5e9;font-size:13px;margin-top:5px;}
 
 .right{text-align:right;border-left:1px solid #eee;padding-left:20px;}
@@ -46,6 +41,14 @@ display:flex;align-items:center;justify-content:center;}
 
 .detalle{display:none;margin-top:10px;font-size:13px;}
 .flight.open .detalle{display:block;}
+
+.segmento{
+padding:10px 0;
+border-bottom:1px solid #eee;
+}
+.segmento:last-child{
+border-bottom:none;
+}
 </style>
 </head>
 
@@ -55,24 +58,40 @@ display:flex;align-items:center;justify-content:center;}
 
 <script>
 
-const CSV="https://docs.google.com/spreadsheets/d/e/2PACX-1vS1RniGt74piEAVb7oVGRQ5NQ-cH_8_gY5V0ZTKWIegH0Osb1SQ_la4lW5nT3E7g2wnjjcHYGSYuQnt/pub?output=csv"
+const CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS1RniGt74piEAVb7oVGRQ5NQ-cH_8_gY5V0ZTKWIegH0Osb1SQ_la4lW5nT3E7g2wnjjcHYGSYuQnt/pub?output=csv"
 
-// ✅ USAMOS PAPAPARSE
+// 🔥 LEER CSV Y AGRUPAR POR ID
 Papa.parse(CSV, {
-download: true,
-complete: function(results){
+  download: true,
+  header: true,
+  complete: function(results){
 
-let rows = results.data.slice(2)
+    let vuelos = {}
 
-for(let i=0;i<rows.length;i+=2){
-if(rows[i] && rows[i+1]){
-crearCard(rows[i], rows[i+1])
-}
-}
+    results.data.forEach(row => {
 
-}
+      if(!row.ID) return
+
+      if(!vuelos[row.ID]){
+        vuelos[row.ID] = []
+      }
+
+      vuelos[row.ID].push(row)
+
+    })
+
+    Object.values(vuelos).forEach(tramos => {
+
+      tramos.sort((a,b) => Number(a.TRAMO) - Number(b.TRAMO))
+
+      crearCard(tramos)
+
+    })
+
+  }
 })
 
+// ⏱ CALCULAR DURACIÓN TOTAL
 function calcularDuracion(salida,llegada){
 if(!salida || !llegada) return "-"
 let [h1,m1]=salida.split(":").map(Number)
@@ -84,12 +103,18 @@ let t=fin-ini
 return `${Math.floor(t/60)}h ${t%60}m`
 }
 
-function crearCard(ida){
+// ✈️ CREAR CARD
+function crearCard(tramos){
 
-let escalaI = ida[0]=="SI"
 let id = Math.random().toString(36).substring(7)
 
-let card=`
+let primero = tramos[0]
+let ultimo = tramos[tramos.length - 1]
+
+let salida = primero["HORA SALIDA"]
+let llegada = ultimo["HORA LLEGADA"]
+
+let card = `
 <div class="flight" id="${id}">
 
 <div class="left">
@@ -98,26 +123,21 @@ let card=`
 
 <div class="route">
 <div>
-<div class="city">${ida[1]}</div>
-<div class="time">${ida[5]}</div>
+<div class="city">${primero.ORIGEN}</div>
+<div class="time">${salida}</div>
 </div>
 
 <div class="arrow">→</div>
 
 <div>
-<div class="city">${ida[2]}</div>
-<div class="time">${escalaI?ida[12]:ida[6]}</div>
+<div class="city">${ultimo.DESTINO}</div>
+<div class="time">${llegada}</div>
 </div>
 </div>
 
 <div class="middle">
-<div class="duration">${calcularDuracion(ida[5], escalaI?ida[12]:ida[6])}</div>
-<div class="scale">${escalaI?'1 escala':'Directo'}</div>
-
-<div class="icons">
-<div class="icon"><i class="fa-solid fa-suitcase"></i></div>
-<div class="icon"><i class="fa-solid fa-plane"></i></div>
-</div>
+<div class="duration">${calcularDuracion(salida, llegada)}</div>
+<div class="scale">${tramos.length > 1 ? (tramos.length - 1)+' escala' : 'Directo'}</div>
 
 <div class="toggle" onclick="toggleDetalle('${id}')">
 Ver detalles ⌄
@@ -127,21 +147,50 @@ Ver detalles ⌄
 </div>
 
 <div class="right">
-<div class="price">${ida[14]} USD</div>
+<div class="price">${primero.TARIFA} USD</div>
 <button class="btn">Seleccionar</button>
 </div>
 
 <div class="detalle">
-<div><b>Aerolínea:</b> ${ida[3]}</div>
-<div><b>Equipaje:</b> ${ida[15]}</div>
+${renderTramos(tramos)}
 </div>
 
 </div>
 `
 
-document.getElementById("cards").innerHTML+=card
+document.getElementById("cards").innerHTML += card
 }
 
+// 📋 DETALLE DE TRAMOS
+function renderTramos(tramos){
+
+let html = ""
+
+tramos.forEach((t, i) => {
+
+  html += `
+  <div class="segmento">
+    <div><b>${t.COMPAÑIA}</b></div>
+    <div>${t.ORIGEN} ${t["HORA SALIDA"]} → ${t.DESTINO} ${t["HORA LLEGADA"]}</div>
+    <div style="color:#6b7280;font-size:12px;">${t.FECHA}</div>
+    <div style="color:#6b7280;font-size:12px;">Equipaje: ${t.EQUIPAJE}</div>
+  </div>
+  `
+
+  if(i < tramos.length - 1){
+    html += `
+    <div style="margin:6px 0;color:#6b7280;">
+      Escala en ${t.DESTINO}
+    </div>
+    `
+  }
+
+})
+
+return html
+}
+
+// 🔽 TOGGLE
 function toggleDetalle(id){
 document.getElementById(id).classList.toggle("open")
 }
@@ -150,3 +199,4 @@ document.getElementById(id).classList.toggle("open")
 
 </body>
 </html>
+```
