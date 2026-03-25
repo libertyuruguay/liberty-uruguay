@@ -8,201 +8,48 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
+<!-- ✅ LIBRERÍA CSV PRO -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
 <style>
-
-body{
-font-family:'Inter',sans-serif;
-background:#f3f5f9;
-margin:0;
-}
-
-header{
-background:white;
-border-bottom:1px solid #e6e8ec;
-padding:15px;
-}
-
-.headerbox{
-display:flex;
-align-items:center;
-justify-content:space-between;
-max-width:1200px;
-margin:auto;
-}
-
-.headerbox img{height:45px;}
-
-.headerbox span{
-font-size:18px;
-font-weight:600;
-color:#0b3a6f;
-}
-
-.container{
-max-width:1100px;
-margin:auto;
-padding:30px 20px;
-}
+body{font-family:'Inter',sans-serif;background:#f3f5f9;margin:0;}
+.container{max-width:1100px;margin:auto;padding:30px 20px;}
 
 .flight{
-background:white;
-border-radius:10px;
-border:1px solid #e5e7eb;
-padding:18px 20px;
-display:grid;
+background:white;border-radius:10px;border:1px solid #e5e7eb;
+padding:18px 20px;display:grid;
 grid-template-columns:1fr 260px;
-align-items:center;
-margin-bottom:10px;
+align-items:center;margin-bottom:10px;
 }
 
-.left{
-display:flex;
-align-items:center;
-justify-content:space-between;
-gap:15px;
-}
+.left{display:flex;align-items:center;justify-content:space-between;gap:15px;}
+.airline{width:32px;height:32px;background:#e6f0ff;border-radius:50%;
+display:flex;align-items:center;justify-content:center;}
 
-.airline{
-width:32px;
-height:32px;
-background:#e6f0ff;
-border-radius:50%;
-display:flex;
-align-items:center;
-justify-content:center;
-font-size:11px;
-font-weight:600;
-color:#2563eb;
-}
+.route{display:flex;align-items:center;gap:12px;flex:1;}
+.city{font-size:13px;color:#6b7280;}
+.time{font-size:20px;font-weight:600;}
+.arrow{color:#9ca3af;}
 
-.route{
-display:flex;
-align-items:center;
-gap:12px;
-flex:1;
-}
+.middle{text-align:center;min-width:160px;}
+.duration,.scale{font-size:13px;color:#6b7280;}
 
-.city{
-font-size:13px;
-color:#6b7280;
-}
+.icons{display:flex;gap:8px;justify-content:center;margin-top:5px;}
+.icon i{font-size:12px;color:#6b7280;}
 
-.time{
-font-size:20px;
-font-weight:600;
-}
+.toggle{cursor:pointer;color:#0ea5e9;font-size:13px;margin-top:5px;}
 
-.arrow{
-color:#9ca3af;
-font-size:18px;
-}
+.right{text-align:right;border-left:1px solid #eee;padding-left:20px;}
+.price{font-size:26px;font-weight:700;}
 
-.middle{
-text-align:center;
-min-width:160px;
-}
+.btn{background:#0ea5e9;color:white;border:none;padding:10px 16px;border-radius:20px;cursor:pointer;}
 
-.duration{
-font-size:13px;
-color:#6b7280;
-}
-
-.scale{
-font-size:12px;
-color:#9ca3af;
-margin-top:3px;
-}
-
-.icons{
-display:flex;
-gap:8px;
-margin-top:5px;
-justify-content:center;
-}
-
-.icon i{
-font-size:12px;
-color:#6b7280;
-}
-
-.toggle{
-cursor:pointer;
-font-size:14px;
-color:#0ea5e9;
-display:flex;
-align-items:center;
-gap:6px;
-margin-top:6px;
-justify-content:center;
-}
-
-.right{
-text-align:right;
-border-left:1px solid #eee;
-padding-left:20px;
-}
-
-.price-label{
-font-size:12px;
-color:#9ca3af;
-}
-
-.price{
-font-size:26px;
-font-weight:700;
-margin:5px 0;
-}
-
-.btn{
-background:#0ea5e9;
-color:white;
-border:none;
-padding:10px 16px;
-border-radius:20px;
-font-weight:600;
-cursor:pointer;
-}
-
-.sub{
-font-size:12px;
-color:#6b7280;
-margin-top:5px;
-}
-
-.badge{
-color:#f59e0b;
-font-size:12px;
-margin-top:8px;
-}
-
-.detalle{
-display:none;
-margin-top:15px;
-padding-top:15px;
-border-top:1px solid #eee;
-font-size:13px;
-color:#374151;
-}
-
-.flight.open .detalle{
-display:block;
-}
-
-.flight.open .toggle i{
-transform:rotate(180deg);
-}
-
+.detalle{display:none;margin-top:10px;font-size:13px;}
+.flight.open .detalle{display:block;}
 </style>
 </head>
 
 <body>
-
-<header>
-<div class="headerbox">
-<img src="Liberty-01.png">
-<span>Cupos Aéreos</span>
-</div>
-</header>
 
 <div class="container" id="cards"></div>
 
@@ -210,17 +57,12 @@ transform:rotate(180deg);
 
 const CSV="https://docs.google.com/spreadsheets/d/e/2PACX-1vS1RniGt74piEAVb7oVGRQ5NQ-cH_8_gY5V0ZTKWIegH0Osb1SQ_la4lW5nT3E7g2wnjjcHYGSYuQnt/pub?output=csv"
 
-fetch(CSV)
-.then(r=>r.text())
-.then(data=>{
+// ✅ USAMOS PAPAPARSE
+Papa.parse(CSV, {
+download: true,
+complete: function(results){
 
-let rows = data
-  .split("\\n")
-  .slice(2)
-  .map(r => {
-    let cols = r.match(/(\".*?\"|[^\",\\s]+)(?=\\s*,|\\s*$)/g);
-    return cols ? cols.map(c => c.replace(/(^\"|\"$)/g, \"\")) : [];
-  });
+let rows = results.data.slice(2)
 
 for(let i=0;i<rows.length;i+=2){
 if(rows[i] && rows[i+1]){
@@ -228,9 +70,11 @@ crearCard(rows[i], rows[i+1])
 }
 }
 
+}
 })
 
 function calcularDuracion(salida,llegada){
+if(!salida || !llegada) return "-"
 let [h1,m1]=salida.split(":").map(Number)
 let [h2,m2]=llegada.split(":").map(Number)
 let ini=h1*60+m1
@@ -240,7 +84,7 @@ let t=fin-ini
 return `${Math.floor(t/60)}h ${t%60}m`
 }
 
-function crearCard(ida, regreso){
+function crearCard(ida){
 
 let escalaI = ida[0]=="SI"
 let id = Math.random().toString(36).substring(7)
@@ -248,68 +92,49 @@ let id = Math.random().toString(36).substring(7)
 let card=`
 <div class="flight" id="${id}">
 
-  <div class="left">
+<div class="left">
 
-    <div class="airline">✈</div>
+<div class="airline">✈</div>
 
-    <div class="route">
-      <div>
-        <div class="city">${ida[1]}</div>
-        <div class="time">${ida[5]}</div>
-      </div>
+<div class="route">
+<div>
+<div class="city">${ida[1]}</div>
+<div class="time">${ida[5]}</div>
+</div>
 
-      <div class="arrow">→</div>
+<div class="arrow">→</div>
 
-      <div>
-        <div class="city">${ida[2]}</div>
-        <div class="time">${escalaI?ida[12]:ida[6]}</div>
-      </div>
-    </div>
+<div>
+<div class="city">${ida[2]}</div>
+<div class="time">${escalaI?ida[12]:ida[6]}</div>
+</div>
+</div>
 
-    <div class="middle">
-      <div class="duration">
-        ${calcularDuracion(ida[5], escalaI?ida[12]:ida[6])}
-      </div>
+<div class="middle">
+<div class="duration">${calcularDuracion(ida[5], escalaI?ida[12]:ida[6])}</div>
+<div class="scale">${escalaI?'1 escala':'Directo'}</div>
 
-      <div class="scale">
-        ${escalaI?`1 escala ${ida[11]} ${ida[10]}`:'Directo'}
-      </div>
+<div class="icons">
+<div class="icon"><i class="fa-solid fa-suitcase"></i></div>
+<div class="icon"><i class="fa-solid fa-plane"></i></div>
+</div>
 
-      <div class="icons">
-        <div class="icon"><i class="fa-solid fa-suitcase"></i></div>
-        <div class="icon"><i class="fa-solid fa-plane"></i></div>
-        <div class="icon"><i class="fa-solid fa-circle-info"></i></div>
-      </div>
+<div class="toggle" onclick="toggleDetalle('${id}')">
+Ver detalles ⌄
+</div>
+</div>
 
-      <div class="toggle" onclick="toggleDetalle('${id}')">
-        Ver detalles <i class="fa-solid fa-chevron-down"></i>
-      </div>
-    </div>
+</div>
 
-  </div>
+<div class="right">
+<div class="price">${ida[14]} USD</div>
+<button class="btn">Seleccionar</button>
+</div>
 
-  <div class="right">
-    <div class="price-label">Precio final</div>
-    <div class="price">${ida[14]} USD</div>
-
-    <button class="btn" onclick="consultar('${ida[1]}-${ida[2]}')">
-      SELECCIONAR
-    </button>
-
-    <div class="sub">
-      Para 1 pasajero<br>
-      Impuestos incluidos
-    </div>
-
-    <div class="badge">OFERTA EXCLUSIVA WEB</div>
-  </div>
-
-  <div class="detalle">
-    <div><b>Aerolínea:</b> ${ida[3]}</div>
-    <div><b>Salida:</b> ${ida[1]} ${ida[5]}</div>
-    <div><b>Llegada:</b> ${ida[2]} ${ida[6]}</div>
-    <div><b>Equipaje:</b> ${ida[15] || 'No especificado'}</div>
-  </div>
+<div class="detalle">
+<div><b>Aerolínea:</b> ${ida[3]}</div>
+<div><b>Equipaje:</b> ${ida[15]}</div>
+</div>
 
 </div>
 `
@@ -318,12 +143,7 @@ document.getElementById("cards").innerHTML+=card
 }
 
 function toggleDetalle(id){
-let el = document.getElementById(id)
-el.classList.toggle("open")
-}
-
-function consultar(ruta){
-window.location.href=`mailto:jose@libertyuruguay.com.uy?subject=Consulta vuelo ${ruta}`
+document.getElementById(id).classList.toggle("open")
 }
 
 </script>
