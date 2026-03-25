@@ -2,222 +2,229 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Cupos Liberty</title>
+<title>Cupos Liberty PRO</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 
 <style>
 body{font-family:'Inter',sans-serif;background:#f3f5f9;margin:0;}
-.container{max-width:1100px;margin:auto;padding:30px 20px;}
+.container{max-width:1200px;margin:auto;padding:20px;}
 
-.flight{
-background:white;border-radius:10px;border:1px solid #e5e7eb;
-padding:18px 20px;display:grid;
-grid-template-columns:1fr 260px;
-align-items:center;margin-bottom:10px;
+h1{margin-bottom:10px;}
+
+.filters{
+display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;
+}
+.filters select{
+padding:8px 12px;border-radius:8px;border:1px solid #ddd;
 }
 
-.left{display:flex;align-items:center;justify-content:space-between;gap:15px;}
-.airline{width:32px;height:32px;background:#e6f0ff;border-radius:50%;
-display:flex;align-items:center;justify-content:center;}
+.flight{
+background:white;border-radius:12px;border:1px solid #e5e7eb;
+padding:20px;margin-bottom:12px;
+display:grid;grid-template-columns:1fr 220px;
+transition:.2s;
+}
+.flight:hover{box-shadow:0 4px 12px rgba(0,0,0,0.08);}
 
-.route{display:flex;align-items:center;gap:12px;flex:1;}
+.route{display:flex;align-items:center;gap:15px;}
 .city{font-size:13px;color:#6b7280;}
-.time{font-size:20px;font-weight:600;}
-.arrow{color:#9ca3af;}
+.time{font-size:22px;font-weight:600;}
 
-.middle{text-align:center;min-width:160px;}
-.duration,.scale{font-size:13px;color:#6b7280;}
-
-.toggle{cursor:pointer;color:#0ea5e9;font-size:13px;margin-top:5px;}
+.badge{
+background:#e0f2fe;color:#0369a1;
+padding:3px 8px;border-radius:6px;font-size:12px;
+display:inline-block;margin-top:5px;
+}
 
 .right{text-align:right;border-left:1px solid #eee;padding-left:20px;}
-.price{font-size:26px;font-weight:700;}
+.price{font-size:28px;font-weight:700;margin-bottom:8px;}
 
 .btn{background:#0ea5e9;color:white;border:none;padding:10px 16px;border-radius:20px;cursor:pointer;}
 
-.detalle{display:none;margin-top:10px;font-size:13px;}
+.detalle{display:none;margin-top:15px;font-size:13px;}
 .flight.open .detalle{display:block;}
 
-.segmento{
-padding:10px 0;
-border-bottom:1px solid #eee;
-}
-.segmento:last-child{
-border-bottom:none;
-}
+.segmento{padding:10px 0;border-bottom:1px solid #eee;}
+.segmento:last-child{border-bottom:none;}
+
+.toggle{cursor:pointer;color:#0ea5e9;margin-top:8px;font-size:13px;}
 </style>
 </head>
 
 <body>
 
-<div class="container" id="cards"></div>
+<div class="container">
+
+<h1>Vuelos disponibles</h1>
+
+<div class="filters">
+<select id="filtroOrigen"><option value="">Origen</option></select>
+<select id="filtroDestino"><option value="">Destino</option></select>
+<select id="filtroEscala">
+<option value="">Todos</option>
+<option value="directo">Directo</option>
+<option value="escala">Con escala</option>
+</select>
+<select id="ordenPrecio">
+<option value="">Ordenar</option>
+<option value="asc">Menor precio</option>
+<option value="desc">Mayor precio</option>
+</select>
+</div>
+
+<div id="cards"></div>
+
+</div>
 
 <script>
 
 const CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS1RniGt74piEAVb7oVGRQ5NQ-cH_8_gY5V0ZTKWIegH0Osb1SQ_la4lW5nT3E7g2wnjjcHYGSYuQnt/pub?output=csv"
 
-// 🚀 PARSE ROBUSTO
-Papa.parse(CSV, {
-  download: true,
-  header: true,
-  skipEmptyLines: true,
-  complete: function(results){
+let vuelosGlobal = []
 
-    let data = results.data
+Papa.parse(CSV,{
+download:true,
+header:true,
+skipEmptyLines:true,
+complete:function(res){
 
-    // 🔥 LIMPIAR HEADERS (espacios ocultos)
-    data = data.map(row => {
-      let clean = {}
-      for (let key in row){
-        clean[key.trim()] = row[key]
-      }
-      return clean
-    })
-
-    let vuelos = {}
-
-    data.forEach(row => {
-
-      if(!row || !row.ID) return
-
-      if(!vuelos[row.ID]){
-        vuelos[row.ID] = []
-      }
-
-      vuelos[row.ID].push(row)
-
-    })
-
-    Object.values(vuelos).forEach(tramos => {
-
-      tramos.sort((a,b) => Number(a.TRAMO) - Number(b.TRAMO))
-
-      crearCard(tramos)
-
-    })
-
-  },
-  error: function(err){
-    console.error("Error CSV:", err)
-    document.getElementById("cards").innerHTML = "Error cargando datos"
-  }
+let data = res.data.map(r=>{
+let o={}
+for(let k in r){o[k.trim()]=r[k]}
+return o
 })
 
-// ⏱ FUNCIÓN SEGURA
-function calcularDuracion(salida,llegada){
+let agrupados={}
 
-if(!salida || !llegada || !salida.includes(":") || !llegada.includes(":")){
-  return "-"
+data.forEach(r=>{
+if(!r.ID) return
+if(!agrupados[r.ID]) agrupados[r.ID]=[]
+agrupados[r.ID].push(r)
+})
+
+vuelosGlobal = Object.values(agrupados).map(tramos=>{
+tramos.sort((a,b)=>a.TRAMO-b.TRAMO)
+return tramos
+})
+
+llenarFiltros()
+render()
+}
+})
+
+function llenarFiltros(){
+
+let origenes = new Set()
+let destinos = new Set()
+
+vuelosGlobal.forEach(v=>{
+origenes.add(v[0].ORIGEN)
+destinos.add(v[v.length-1].DESTINO)
+})
+
+origenes.forEach(o=>{
+filtroOrigen.innerHTML += `<option>${o}</option>`
+})
+
+destinos.forEach(d=>{
+filtroDestino.innerHTML += `<option>${d}</option>`
+})
 }
 
-let [h1,m1]=salida.split(":").map(Number)
-let [h2,m2]=llegada.split(":").map(Number)
+function render(){
 
-if(isNaN(h1) || isNaN(h2)) return "-"
+let origen = filtroOrigen.value
+let destino = filtroDestino.value
+let escala = filtroEscala.value
+let orden = ordenPrecio.value
 
-let ini=h1*60+m1
-let fin=h2*60+m2
+let vuelos = vuelosGlobal.filter(v=>{
 
-if(fin<ini) fin+=1440
+let o = v[0].ORIGEN
+let d = v[v.length-1].DESTINO
+let esEscala = v.length>1
 
-let t=fin-ini
+if(origen && o!=origen) return false
+if(destino && d!=destino) return false
+if(escala=="directo" && esEscala) return false
+if(escala=="escala" && !esEscala) return false
 
-return `${Math.floor(t/60)}h ${t%60}m`
+return true
+})
+
+if(orden=="asc"){
+vuelos.sort((a,b)=>a[0].TARIFA-b[0].TARIFA)
+}
+if(orden=="desc"){
+vuelos.sort((a,b)=>b[0].TARIFA-a[0].TARIFA)
 }
 
-// ✈️ CARD
-function crearCard(tramos){
+cards.innerHTML=""
 
-let id = Math.random().toString(36).substring(7)
+vuelos.forEach(v=>cards.innerHTML+=cardHTML(v))
+}
 
-let primero = tramos[0]
-let ultimo = tramos[tramos.length - 1]
+function cardHTML(tramos){
 
-let salida = primero["HORA SALIDA"]
-let llegada = ultimo["HORA LLEGADA"]
+let id=Math.random().toString(36).substr(2,5)
+let p=tramos[0]
+let u=tramos[tramos.length-1]
 
-let card = `
+return `
 <div class="flight" id="${id}">
 
-<div class="left">
-
-<div class="airline">✈</div>
+<div>
 
 <div class="route">
 <div>
-<div class="city">${primero.ORIGEN || "-"}</div>
-<div class="time">${salida || "-"}</div>
+<div class="city">${p.ORIGEN}</div>
+<div class="time">${p["HORA SALIDA"]}</div>
 </div>
 
-<div class="arrow">→</div>
+→
 
 <div>
-<div class="city">${ultimo.DESTINO || "-"}</div>
-<div class="time">${llegada || "-"}</div>
+<div class="city">${u.DESTINO}</div>
+<div class="time">${u["HORA LLEGADA"]}</div>
 </div>
 </div>
 
-<div class="middle">
-<div class="duration">${calcularDuracion(salida, llegada)}</div>
-<div class="scale">${tramos.length > 1 ? (tramos.length - 1)+' escala' : 'Directo'}</div>
-
-<div class="toggle" onclick="toggleDetalle('${id}')">
-Ver detalles ⌄
+<div class="badge">
+${tramos.length>1 ? (tramos.length-1)+' escala' : 'Directo'}
 </div>
+
+<div class="toggle" onclick="toggle('${id}')">Ver detalles</div>
+
+<div class="detalle">
+${tramos.map((t,i)=>`
+<div class="segmento">
+<b>${t.COMPAÑIA}</b><br>
+${t.ORIGEN} ${t["HORA SALIDA"]} → ${t.DESTINO} ${t["HORA LLEGADA"]}
+</div>
+${i<tramos.length-1?`<div style="color:#6b7280">Escala en ${t.DESTINO}</div>`:''}
+`).join("")}
 </div>
 
 </div>
 
 <div class="right">
-<div class="price">${primero.TARIFA || "-"} USD</div>
+<div class="price">${p.TARIFA} USD</div>
 <button class="btn">Seleccionar</button>
-</div>
-
-<div class="detalle">
-${renderTramos(tramos)}
 </div>
 
 </div>
 `
-
-document.getElementById("cards").innerHTML += card
 }
 
-// 📋 DETALLE
-function renderTramos(tramos){
-
-let html = ""
-
-tramos.forEach((t, i) => {
-
-  html += `
-  <div class="segmento">
-    <div><b>${t.COMPAÑIA || "-"}</b></div>
-    <div>${t.ORIGEN || "-"} ${t["HORA SALIDA"] || "-"} → ${t.DESTINO || "-"} ${t["HORA LLEGADA"] || "-"}</div>
-    <div style="color:#6b7280;font-size:12px;">${t.FECHA || "-"}</div>
-    <div style="color:#6b7280;font-size:12px;">Equipaje: ${t.EQUIPAJE || "-"}</div>
-  </div>
-  `
-
-  if(i < tramos.length - 1){
-    html += `
-    <div style="margin:6px 0;color:#6b7280;">
-      Escala en ${t.DESTINO || "-"}
-    </div>
-    `
-  }
-
-})
-
-return html
-}
-
-// 🔽 TOGGLE
-function toggleDetalle(id){
+function toggle(id){
 document.getElementById(id).classList.toggle("open")
 }
+
+document.querySelectorAll("select").forEach(s=>{
+s.addEventListener("change",render)
+})
 
 </script>
 
