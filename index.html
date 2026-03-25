@@ -6,6 +6,7 @@
 <title>Cupos Liberty</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 <style>
 
@@ -40,63 +41,48 @@ color:#0b3a6f;
 
 /* CONTAINER */
 .container{
-max-width:1200px;
+max-width:1100px;
 margin:auto;
 padding:30px 20px;
 }
 
 /* CARD */
-.card{
+.flight{
 background:white;
-border-radius:14px;
-margin-bottom:20px;
-box-shadow:0 4px 20px rgba(0,0,0,0.06);
-padding:25px;
-transition:.2s;
-}
-
-.card:hover{
-transform:translateY(-3px);
-}
-
-/* GRID */
-.grid{
+border-radius:10px;
+border:1px solid #e5e7eb;
+padding:18px 20px;
 display:grid;
-grid-template-columns:1fr 1fr 250px;
-gap:25px;
+grid-template-columns:1fr 260px;
 align-items:center;
-}
-
-/* BLOQUES */
-.box{
-border-right:1px solid #eee;
-padding-right:20px;
-}
-
-.box:last-child{
-border:none;
-}
-
-/* TITULOS */
-.title{
-font-size:12px;
-color:#9aa1ac;
 margin-bottom:10px;
-font-weight:500;
-letter-spacing:.5px;
 }
 
-/* TIMES */
-.times{
+.left{
 display:flex;
-justify-content:space-between;
 align-items:center;
+justify-content:space-between;
+gap:15px;
 }
 
-.time{
-font-size:24px;
-font-weight:700;
-color:#1c1e21;
+.airline{
+width:32px;
+height:32px;
+background:#e6f0ff;
+border-radius:50%;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:11px;
+font-weight:600;
+color:#2563eb;
+}
+
+.route{
+display:flex;
+align-items:center;
+gap:12px;
+flex:1;
 }
 
 .city{
@@ -104,104 +90,110 @@ font-size:13px;
 color:#6b7280;
 }
 
-.center{text-align:center;}
+.time{
+font-size:20px;
+font-weight:600;
+}
+
+.arrow{
+color:#9ca3af;
+font-size:18px;
+}
+
+.middle{
+text-align:center;
+min-width:160px;
+}
 
 .duration{
+font-size:13px;
+color:#6b7280;
+}
+
+.scale{
+font-size:12px;
+color:#9ca3af;
+margin-top:3px;
+}
+
+.icons{
+display:flex;
+gap:8px;
+margin-top:5px;
+justify-content:center;
+}
+
+.icon i{
 font-size:12px;
 color:#6b7280;
-margin:6px 0;
 }
 
-/* LINEA */
-.line{
-height:2px;
-background:#d1d5db;
-position:relative;
-border-radius:2px;
-}
-
-.dot{
-width:8px;
-height:8px;
-background:#0b3a6f;
-border-radius:50%;
-position:absolute;
-top:-3px;
-}
-
-.dot.start{left:0;}
-.dot.end{right:0;}
-.dot.middle{left:50%;transform:translateX(-50%);}
-
-/* OPERADO */
-.operado{
-font-size:12px;
-color:#9aa1ac;
-margin-top:10px;
-}
-
-/* BOTON DETALLES */
-.details{
-margin-top:12px;
-display:inline-block;
-font-size:12px;
-color:#0b3a6f;
+.toggle{
 cursor:pointer;
-font-weight:500;
+font-size:14px;
+color:#0ea5e9;
+display:flex;
+align-items:center;
+gap:6px;
+margin-top:6px;
+justify-content:center;
 }
 
-/* RIGHT */
 .right{
 text-align:right;
+border-left:1px solid #eee;
+padding-left:20px;
+}
+
+.price-label{
+font-size:12px;
+color:#9ca3af;
 }
 
 .price{
-font-size:30px;
+font-size:26px;
 font-weight:700;
-color:#111827;
+margin:5px 0;
 }
 
-.subinfo{
-font-size:13px;
+.btn{
+background:#0ea5e9;
+color:white;
+border:none;
+padding:10px 16px;
+border-radius:20px;
+font-weight:600;
+cursor:pointer;
+}
+
+.sub{
+font-size:12px;
 color:#6b7280;
 margin-top:5px;
 }
 
-.btn{
-margin-top:15px;
-background:#0b3a6f;
-color:white;
-border:none;
-padding:12px;
-border-radius:8px;
-cursor:pointer;
-width:100%;
-font-weight:600;
-transition:.2s;
+.badge{
+color:#f59e0b;
+font-size:12px;
+margin-top:8px;
 }
 
-.btn:hover{
-background:#092c52;
-}
-
-/* MODAL */
-.modal{
-position:fixed;
-top:0;
-left:0;
-width:100%;
-height:100%;
-background:rgba(0,0,0,0.5);
+/* DETALLE */
+.detalle{
 display:none;
-justify-content:center;
-align-items:center;
+margin-top:15px;
+padding-top:15px;
+border-top:1px solid #eee;
+font-size:13px;
+color:#374151;
 }
 
-.modal-box{
-background:white;
-width:500px;
-padding:25px;
-border-radius:12px;
+.flight.open .detalle{
+display:block;
+}
+
+.flight.open .toggle i{
+transform:rotate(180deg);
 }
 
 </style>
@@ -218,16 +210,6 @@ border-radius:12px;
 
 <div class="container" id="cards"></div>
 
-<!-- MODAL -->
-<div class="modal" id="modal">
-<div class="modal-box">
-<h3>Detalles del vuelo</h3>
-<div id="detalle"></div>
-<br>
-<button onclick="cerrarModal()">Cerrar</button>
-</div>
-</div>
-
 <script>
 
 const CSV="https://docs.google.com/spreadsheets/d/e/2PACX-1vS1RniGt74piEAVb7oVGRQ5NQ-cH_8_gY5V0ZTKWIegH0Osb1SQ_la4lW5nT3E7g2wnjjcHYGSYuQnt/pub?output=csv"
@@ -235,24 +217,18 @@ const CSV="https://docs.google.com/spreadsheets/d/e/2PACX-1vS1RniGt74piEAVb7oVGR
 fetch(CSV)
 .then(r=>r.text())
 .then(data=>{
-
-let rows=data.split("\n").slice(2).map(r=>r.split(","))
-
+let rows=data.split("\\n").slice(2).map(r=>r.split(","))
 for(let i=0;i<rows.length;i+=2){
 crearCard(rows[i], rows[i+1])
 }
-
 })
 
 function calcularDuracion(salida,llegada){
-
 let [h1,m1]=salida.split(":").map(Number)
 let [h2,m2]=llegada.split(":").map(Number)
-
 let ini=h1*60+m1
 let fin=h2*60+m2
 if(fin<ini) fin+=1440
-
 let t=fin-ini
 return `${Math.floor(t/60)}h ${t%60}m`
 }
@@ -260,115 +236,83 @@ return `${Math.floor(t/60)}h ${t%60}m`
 function crearCard(ida, regreso){
 
 let escalaI = ida[0]=="SI"
-let escalaR = regreso[0]=="SI"
+let id = Math.random().toString(36).substring(7)
 
 let card=`
-<div class="card">
+<div class="flight" id="${id}">
 
-<div class="grid">
+  <div class="left">
 
-<!-- IDA -->
-<div class="box">
+    <div class="airline">✈</div>
 
-<div class="title">IDA</div>
+    <div class="route">
+      <div>
+        <div class="city">${ida[1]}</div>
+        <div class="time">${ida[5]}</div>
+      </div>
 
-<div class="times">
-<div>
-<div class="time">${ida[5]}</div>
-<div class="city">${ida[1]}</div>
-</div>
+      <div class="arrow">→</div>
 
-<div class="center">
-<div class="duration">${calcularDuracion(ida[5], escalaI?ida[12]:ida[6])}</div>
-<div class="line">
-<div class="dot start"></div>
-${escalaI?'<div class="dot middle"></div>':''}
-<div class="dot end"></div>
-</div>
-</div>
+      <div>
+        <div class="city">${ida[2]}</div>
+        <div class="time">${escalaI?ida[12]:ida[6]}</div>
+      </div>
+    </div>
 
-<div style="text-align:right">
-<div class="time">${escalaI?ida[12]:ida[6]}</div>
-<div class="city">${ida[2]}</div>
-</div>
-</div>
+    <div class="middle">
+      <div class="duration">
+        ${calcularDuracion(ida[5], escalaI?ida[12]:ida[6])}
+      </div>
 
-<div class="operado">${ida[3]}</div>
+      <div class="scale">
+        ${escalaI?`1 escala ${ida[11]} ${ida[10]}`:'Directo'}
+      </div>
 
-<div class="details" onclick='verDetalle(${JSON.stringify(ida)})'>
-Ver detalles
-</div>
+      <div class="icons">
+        <div class="icon"><i class="fa-solid fa-suitcase"></i></div>
+        <div class="icon"><i class="fa-solid fa-plane"></i></div>
+        <div class="icon"><i class="fa-solid fa-circle-info"></i></div>
+      </div>
 
-</div>
+      <div class="toggle" onclick="toggleDetalle('${id}')">
+        Ver detalles <i class="fa-solid fa-chevron-down"></i>
+      </div>
+    </div>
 
-<!-- REGRESO -->
-<div class="box">
+  </div>
 
-<div class="title">REGRESO</div>
+  <div class="right">
+    <div class="price-label">Precio final</div>
+    <div class="price">${ida[14]} USD</div>
 
-<div class="times">
-<div>
-<div class="time">${regreso[5]}</div>
-<div class="city">${regreso[1]}</div>
-</div>
+    <button class="btn" onclick="consultar('${ida[1]}-${ida[2]}')">
+      SELECCIONAR
+    </button>
 
-<div class="center">
-<div class="duration">${calcularDuracion(regreso[5], escalaR?regreso[12]:regreso[6])}</div>
-<div class="line">
-<div class="dot start"></div>
-${escalaR?'<div class="dot middle"></div>':''}
-<div class="dot end"></div>
-</div>
-</div>
+    <div class="sub">
+      Para 1 pasajero<br>
+      Impuestos incluidos
+    </div>
 
-<div style="text-align:right">
-<div class="time">${escalaR?regreso[12]:regreso[6]}</div>
-<div class="city">${regreso[2]}</div>
-</div>
-</div>
+    <div class="badge">OFERTA EXCLUSIVA WEB</div>
+  </div>
 
-<div class="operado">${regreso[3]}</div>
-
-<div class="details" onclick='verDetalle(${JSON.stringify(regreso)})'>
-Ver detalles
-</div>
-
-</div>
-
-<!-- PRECIO -->
-<div class="right">
-<div class="price">${ida[14]} USD</div>
-<div class="subinfo">${ida[13]} cupos</div>
-<div class="subinfo">${ida[15]}</div>
-
-<button class="btn" onclick="consultar('${ida[1]}-${ida[2]}')">
-Consultar
-</button>
-</div>
-
-</div>
+  <div class="detalle">
+    <div><b>Aerolínea:</b> ${ida[3]}</div>
+    <div><b>Salida:</b> ${ida[1]} ${ida[5]}</div>
+    <div><b>Llegada:</b> ${ida[2]} ${ida[6]}</div>
+    <div><b>Equipaje:</b> ${ida[15] || 'No especificado'}</div>
+  </div>
 
 </div>
 `
 
 document.getElementById("cards").innerHTML+=card
-
 }
 
-function verDetalle(data){
-
-let html = `
-<b>Salida:</b> ${data[1]} ${data[5]}<br>
-<b>Llegada:</b> ${data[2]} ${data[6]}<br>
-<b>Aerolínea:</b> ${data[3]}
-`
-
-document.getElementById("detalle").innerHTML = html
-document.getElementById("modal").style.display="flex"
-}
-
-function cerrarModal(){
-document.getElementById("modal").style.display="none"
+function toggleDetalle(id){
+let el = document.getElementById(id)
+el.classList.toggle("open")
 }
 
 function consultar(ruta){
